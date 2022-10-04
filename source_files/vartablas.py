@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from statistics import variance
-from utils import *
+from source_files.utils import *
 
 
 class varpot:
@@ -43,7 +43,7 @@ class varpot:
 
 
         def insertar(self,p):
-            if len(p.listavar) ==1:
+            if len(p.listvar) ==1:
                 if p.contradict():
                     self.anula()
                     return
@@ -55,11 +55,11 @@ class varpot:
                     return 
             if self.unit:
                 varsu = set(map(abs,self.unit))
-                if varsu.intersection(set(p.listavar)):
+                if varsu.intersection(set(p.listvar)):
                     varr = filter(lambda x: abs(x) in varsu, self.unit)
                     
                     p = p.reduce(varr,inplace=False)
-            for v in p.listavar:
+            for v in p.listvar:
                 if v in self.tabla:
                     self.tabla[v].append(p)
                 else:
@@ -113,14 +113,14 @@ class varpot:
 
 
         def borrarpot(self,p):
-            if len(p.listavar) == 1:
-                v = p.listavar[0]
+            if len(p.listvar) == 1:
+                v = p.listvar[0]
                 if not p.tabla[0]:
                     self.unit.discard(-v)
                 elif not p.tabla[1]:
                     self.unit.discard(v)
                 return 
-            for v in p.listavar:
+            for v in p.listvar:
                 if v in self.tabla:
                     try:
                         self.tabla[v].remove(p)
@@ -169,7 +169,7 @@ class varpot:
 
 
         def borrafacil(self,vars,M=25,Q=20,ver = True):
-            orden = []
+            order = []
             listan = []
             listaq = []
             e = True
@@ -207,17 +207,17 @@ class varpot:
                 if not exac:
                     print("borrado no exacto " )
                     e = False
-                    return (e,orden,nuevas,antiguas)
+                    return (e,order,nuevas,antiguas)
                 else:
 
-                    orden.append(var)
+                    order.append(var)
                     listan.append(nuevas)
                     listaq.append(antiguas)
                 
                     u.ordenaycombinaincluidas(nuevas,self)
 
 
-            return(e,orden,nuevas,antiguas)
+            return(e,order,nuevas,antiguas)
 
 
         
@@ -227,7 +227,7 @@ class varpot:
                 res.insertaru(u)
             for v in rela.tabla:
                 for p in rela.tabla[v]:
-                    if min(p.listavar) ==v:
+                    if min(p.listvar) ==v:
                         res.insertar(p)
 
             return res
@@ -255,7 +255,7 @@ class varpot:
             (exact,lista,listaconvar) = u.marginaliza(self.get(var).copy(),var,self.partir,M,Q) #EEDM
 
             
-            if exact and lista and not lista[0].listavar:
+            if exact and lista and not lista[0].listvar:
                 if lista[0].contradict():
                     print ("contradict")
                     self.anula()    
@@ -266,7 +266,7 @@ class varpot:
 
                     self.anula()
                 else:
-                    # print(p.listavar)
+                    # print(p.listvar)
                     self.insertar(p)     
 
             self.borrarv(var)
@@ -296,7 +296,7 @@ class varpot:
             (exact,lista,listaconvar) = u.marginaliza(self.get(var).copy(),var,self.partir,M,Q) #EEDM
 
             
-            if exact and lista and not lista[0].listavar:
+            if exact and lista and not lista[0].listvar:
                 if lista[0].contradict():
                     self.anula()    
                     return(True,lista,listaconvar)
@@ -310,18 +310,18 @@ class varpot:
             return (exact,lista,listaconvar)
 
 
-        def marginalizaset(self,vars,M = 30, Q=20, ver = True, inplace = True, pre = False, orden = []):
+        def marginalizaset(self,vars,M = 30, Q=20, ver = True, inplace = True, pre = False, order = []):
             if not pre:
                 vars.intersection_update(self.getvars())
             
             if inplace:
                 if not pre:
-                    orden = []
+                    order = []
                 listan = []
                 listaq = []
                 nuevas = []
                 if pre:
-                    nvars = [x for x in orden if x in vars]
+                    nvars = [x for x in order if x in vars]
                     nvars.reverse()
                     vars = nvars
                 e = True
@@ -369,14 +369,14 @@ class varpot:
                         print("borrado no exacto " )
                         e = False
                     if not pre:
-                        orden.append(var)
+                        order.append(var)
                     listan.append(nuevas)
                     listaq.append(antiguas)
                     if not self.contradict:
                         u.ordenaycombinaincluidas(nuevas,self, borrar=True)
 
 
-                return(e,orden,nuevas,listaq)
+                return(e,order,nuevas,listaq)
             else:
                 res = self.copia()
                 res.marginalizaset(vars,M , Q, ver , inplace = True)
@@ -389,7 +389,7 @@ class varpot:
             lista = []
             for v in self.tabla:
                 for p in self.tabla[v]:
-                    if min(p.listavar) == v:
+                    if min(p.listvar) == v:
                         lista.append(p)
             return lista
 
@@ -399,7 +399,7 @@ class varpot:
                 res.combina(potdev(v), inplace=True)
             for v in self.tabla:
                 for p in self.tabla[v]:
-                    if min(p.listavar) == v:
+                    if min(p.listvar) == v:
                         res.combina(p, inplace=True)
             return res
 
@@ -410,16 +410,16 @@ class varpot:
 
             for p in listap:                
                     old = np.sum(p.tabla)
-                    vars = set(p.listavar)
+                    vars = set(p.listvar)
                     nvars = vars.copy()
-                    tvars = set(p.listavar)
+                    tvars = set(p.listvar)
                     lista = []
                     for i in range(N):
                         for v in nvars:
                             for q in self.tabla[v]:
                                 if not q in lista:
                                     lista.append(q)
-                                    qv = set(q.listavar)
+                                    qv = set(q.listvar)
                                     tvars.update(qv)
                             nvars = tvars-vars
                             vars = tvars.copy()
@@ -428,7 +428,7 @@ class varpot:
                     r = varpot()
                     r.createfromlista(lista)
                     
-                    r.marginalizaset(tvars-set(p.listavar),M,self.Q, ver=False) #EDM
+                    r.marginalizaset(tvars-set(p.listvar),M,self.Q, ver=False) #EDM
                     nl = r.extraelista()
                     lk = nodoTabla([])
                     for q in nl:
@@ -438,7 +438,7 @@ class varpot:
                     ns = np.sum(lk.tabla)
 
                     if (ns < old):
-                        # print("mejora", ns, old,len(p.listavar), len(lk.listavar)) #EDM
+                        # print("mejora", ns, old,len(p.listvar), len(lk.listvar)) #EDM
                         self.borrarpot(p)
                         self.insertar(lk)
 

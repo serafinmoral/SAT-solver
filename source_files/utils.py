@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
-from tablaClausulas import *
-from vartablas import *
-import ProblemaTrianFactor as pt
+from source_files.tablaClausulas import *
+from source_files.vartablas import *
+import source_files.ProblemaTrianFactor as pt
 
 def tam(l):
     tot = set()
     if l:
         for h in l:
-            tot.update(set(h.listavar))
+            tot.update(set(h.listvar))
         return len(tot)
     else:
         return 0    
 
 def valord(p):
-    if not len(p.listavar)==1:
+    if not len(p.listvar)==1:
         print("llamada impropia")
     else:
-        v = p.listavar[0]
+        v = p.listvar[0]
         if not p.tabla[0]:
             return v
         else:
@@ -27,7 +27,7 @@ def contenida(nodo, listanodos):
         nodoaux = nodoTabla([])
         for x in range(len(listanodos)):
             nodoaux.combina(listanodos[x], inplace=True)
-        listaBorra = list(set(nodoaux.listavar)-set(nodo.listavar))
+        listaBorra = list(set(nodoaux.listvar)-set(nodo.listvar))
         nodoaux.borra(listaBorra, inplace=True)
         nodoaux.tabla = np.logical_not(nodoaux.tabla)
         nodoaux=nodoaux.suma(nodo)
@@ -43,24 +43,24 @@ def partev(lista,v):
             bor.append(p)
             # print("trivial antes ")
             break 
-        if v in p.listavar:
+        if v in p.listvar:
             l = p.descomponev(v)
             if len(l)>1:
                 for q in l:
                     if not q.trivial():
                         nl.append(q)
                     # else:
-                        # print("trivial ", q.listavar)
+                        # print("trivial ", q.listvar)
                 bor.append(p)
-                # print("descomposicion ", len(p.listavar))
-                # print([len(q.listavar) for q in l])
+                # print("descomposicion ", len(p.listvar))
+                # print([len(q.listvar) for q in l])
                 # sleep(1)
             
     for p in bor:
         lista.remove(p)
     lista.extend(nl)
 
-    lista.sort(key = lambda x : len(x.listavar) )
+    lista.sort(key = lambda x : len(x.listvar) )
 
 
 def potdev(v):
@@ -73,16 +73,16 @@ def potdev(v):
 
 
 def calculaclusters1(lista,p,var):
-    li = [set(q.listavar).union(p.listavar) - {var} for q in lista]
+    li = [set(q.listvar).union(p.listvar) - {var} for q in lista]
     borraincluidos(li)
     return li
 
 def calculaclusters2(lista,var):
     li = []
     for p in lista:
-        s = set(p.listavar)
+        s = set(p.listvar)
         for q in lista:
-            li.append(s.union(q.listavar)- {var})
+            li.append(s.union(q.listvar)- {var})
     borraincluidos(li)
     return li
 
@@ -106,7 +106,7 @@ def borraincluidos(lista):
 
 def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
     
-    lista.sort(key = lambda x : - len(x.listavar) )
+    lista.sort(key = lambda x : - len(x.listvar) )
 
     
     i=0
@@ -115,7 +115,7 @@ def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
         j = i+1
         while j < len(lista):
             # print("lista, i, j", len(lista), i, j)
-            if set(lista[j].listavar) <= set(lista[i].listavar):
+            if set(lista[j].listvar) <= set(lista[i].listvar):
                 p = lista[i]
                 q = lista[j]
                 
@@ -159,7 +159,7 @@ def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
 
 def agrupatam(lista):
     
-    lista.sort(key = lambda x : - len(x.listavar) )
+    lista.sort(key = lambda x : - len(x.listvar) )
 
     
 
@@ -169,8 +169,8 @@ def agrupatam(lista):
         j = i+1
         while j < len(lista):
             # print("lista, i, j", len(lista), i, j)
-            s1 = set(lista[j].listavar)
-            s2 = set(lista[i].listavar)
+            s1 = set(lista[j].listvar)
+            s2 = set(lista[i].listvar)
             if s1 <= s2 or ((len(s1) == len(s2) and (len(s1-s2) == 1))):
                 p = lista[i]
                 q = lista[j]
@@ -224,19 +224,19 @@ def createclusters (lista):
             if j >= len(listasets):
                 i += 1
                 j = i+1
-    listaclaus = []
+    listclaus = []
     for i in range(len(listasets)):
-        listaclaus.append([])
+        listclaus.append([])
 
 
     for cl in lista:
         va = set(map(abs,cl))
         for i in range(len(listasets)):
             if va <= listasets[i]:
-                listaclaus[i].append(cl)
+                listclaus[i].append(cl)
                 break
 
-    return(listasets,listaclaus)
+    return(listasets,listclaus)
 
 
 
@@ -252,19 +252,19 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
     vars = set()
     deter = False
     for p in lista:
-        # print(p.listavar)
-        if var in p.listavar:
+        # print(p.listvar)
+        if var in p.listvar:
 
-            vars.update(p.listavar)
+            vars.update(p.listvar)
             si.append(p)
             if not deter:
                 deter = p.checkdetermi(var)
                 if deter: 
                     nv = set()
                     keyp = p.minimizadep(var,nv)
-                    setkey = set(keyp.listavar)
-                    # if len(keyp.listavar) < len(p.listavar):
-                        # print("minimizo ",len(keyp.listavar) ,  len(p.listavar))
+                    setkey = set(keyp.listvar)
+                    # if len(keyp.listvar) < len(p.listvar):
+                        # print("minimizo ",len(keyp.listvar) ,  len(p.listvar))
         else:
             # print("warning: variable no en tabla")
             res.append(p)
@@ -308,7 +308,7 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
                 if q == keyp:
                     r = q.borra([var],inplace = False)
                 else:
-                    if len(setkey.union(set(q.listavar))) < M+1:
+                    if len(setkey.union(set(q.listvar))) < M+1:
                         r = q.combina(keyp,inplace = False, des = False)
                         r.borra([var],inplace = True)
 
@@ -322,7 +322,7 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
                         exact = False
 
     else:
-            si.sort(key = lambda h: - len(h.listavar) )
+            si.sort(key = lambda h: - len(h.listvar) )
             print("borrada " , var, "metodo 2, n potenciales", len(si))
             if len(si) >= 30:
                     # print("arupando en tamaño ", len(si))
@@ -393,10 +393,10 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
                 listp = si2
                 while si:
                     q = si.pop()
-                    # print(q.listavar)
+                    # print(q.listvar)
 
                     for p in si2:
-                        if len(set(q.listavar).union(set(p.listavar))) >M+1:
+                        if len(set(q.listvar).union(set(p.listvar))) >M+1:
                             print( "no exacto")
                             exact = False
                         else:
@@ -422,7 +422,7 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
     return (exact,res,listp)
 
 def topologico(lista):
-    orden = []
+    order = []
     padres = dict()
     elegidos = set()
     for x in lista:
@@ -434,9 +434,9 @@ def topologico(lista):
             if len(padres[x]- elegidos) == 0:
                 break
         elegidos.add(x)
-        orden.append(x)
+        order.append(x)
         del padres[x]
-    return orden
+    return order
 
 
             
@@ -458,8 +458,8 @@ def calculamethod(lista,var):
             for p in lista:
         
             
-                if var in p.listavar:
-                        vars.update(p.listavar)
+                if var in p.listvar:
+                        vars.update(p.listvar)
                         si.append(p)
                         if not deter:
                             deter = p.checkdetermi(var)
@@ -467,9 +467,9 @@ def calculamethod(lista,var):
                                 return 1
             return 2              
                     
-def triangulaconorden(pot,orden):
+def triangulaconorden(pot,order):
 
-    n = len(orden)
+    n = len(order)
     clusters = []
     
     child = []
@@ -477,7 +477,7 @@ def triangulaconorden(pot,orden):
     parent = [-1]*(n+1)
 
     indexvar = dict()
-    for v in orden:
+    for v in order:
         indexvar[v] = []
 
     for i in range(n+1):
@@ -485,14 +485,14 @@ def triangulaconorden(pot,orden):
     
 
     for p in pot.listap:
-        con = set(p.listavar)
+        con = set(p.listvar)
         for v in con:
             indexvar[v].append(con)
     for v in pot.unit:
         indexvar[abs(v)].append({abs(v)})
 
     i=0
-    for nnodo in orden:
+    for nnodo in order:
         lista = indexvar[nnodo]
         cluster = set()
         for y in lista:
@@ -517,7 +517,7 @@ def triangulaconorden(pot,orden):
 
     for i in range(n):
             con = clusters[i]
-            cons = con - {orden[i]}
+            cons = con - {order[i]}
             if not cons:
                 parent[i] = n
                 child[n].add(i)
@@ -536,7 +536,7 @@ def triangulaconorden(pot,orden):
 
             
 
-    # print(orden)
+    # print(order)
     return (clusters,posvar,child,parent)     
 
 def leeficheroUAI(Archivo):
@@ -558,12 +558,12 @@ def leeficheroUAI(Archivo):
     for l in lista:
         reader.readline()
         lee=int(int(reader.readline())/2)
-        lvars=l.listavar
+        lvars=l.listvar
         datos = np.array([])
         for x in range(lee):
             datos=np.append(datos,list(map(float,reader.readline().split())))
-        l.tabla=(datos!=0.).reshape((2,)*len(l.listavar))
-        npdatos = datos.reshape((2,)*len(l.listavar))
+        l.tabla=(datos!=0.).reshape((2,)*len(l.listvar))
+        npdatos = datos.reshape((2,)*len(l.listvar))
         
         l.tabla = npdatos
       

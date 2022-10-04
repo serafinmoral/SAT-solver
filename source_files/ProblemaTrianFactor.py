@@ -3,13 +3,11 @@ from operator import index
 import time
 
 from numpy import False_
-from vartablas import *
+from source_files.vartablas import *
 
-from SimpleClausulas import *
-from arboltabla import calculadesdePotencial
-from tablaClausulas import *
-from arbolbooleano import *
-from utils import *
+from source_files.SimpleClauses import *
+from source_files.tablaClausulas import *
+from source_files.utils import *
 import random as ra
 
 
@@ -23,7 +21,7 @@ class problemaTrianFactor:
          self.inicial = info
          self.pinicial = PotencialTabla()
          self.rela = varpot(Qin,Partirin) #EDM
-         self.orden = []
+         self.order = []
          self.clusters = []
          self.lqueue  = []
          self.lfloat = []
@@ -53,10 +51,10 @@ class problemaTrianFactor:
 
     def inicia1(self):
 
-        print(self.orden)
+        print(self.order)
         self.lqueue = []
         
-        for i in self.orden:
+        for i in self.order:
                 
                 y = PotencialTabla()
                 self.lqueue.append(y)
@@ -73,7 +71,7 @@ class problemaTrianFactor:
 
         for x in self.pinicial.unit:
             # print("unitaria ", x)
-            self.orden.append(abs(x))
+            self.order.append(abs(x))
             t = potdev(x)
             self.lqueue.append(t)
         self.pinicial.unit = set()
@@ -97,15 +95,15 @@ class problemaTrianFactor:
                 i=0
                 while i < len(self.pinicial.listap):
                     p = self.pinicial.listap[i]
-                    if len(p.listavar) == K:
-                        for v in p.listavar:
+                    if len(p.listvar) == K:
+                        for v in p.listvar:
                                 deter = p.checkdetermi(v)
                                 if deter:
                                     varb.append(v)
                                     potb.append(p)
-                                    self.orden.append(v)
+                                    self.order.append(v)
                                     self.lqueue.append(p)
-                                    # print("variable ", v, " determinada ", p.listavar)
+                                    # print("variable ", v, " determinada ", p.listvar)
                                     # print(p.tabla)
                                     self.borrad(v,p)
                                     total += 1
@@ -122,8 +120,8 @@ class problemaTrianFactor:
         tota = set()
         for i in range(len(self.pinicial.listap)):
             q = self.pinicial.listap[i]
-            if v in q.listavar:
-                # print("var pot", q.listavar)
+            if v in q.listvar:
+                # print("var pot", q.listvar)
                 if q == p:
                     h = q.borra([v],inplace = False)
                     if h.trivial():
@@ -148,7 +146,7 @@ class problemaTrianFactor:
 
     def anula(self):
 
-        for i in range(len(self.orden)):
+        for i in range(len(self.order)):
             self.lqueue[i].anula()
         self.contradict = True
 
@@ -171,11 +169,11 @@ class problemaTrianFactor:
 
 
         
-            vcl = p.listavar
+            vcl = p.listvar
             if vcl:
                 pos = min(map(lambda h: self.posvar[h], vcl))
             else:
-                pos = len(self.orden)
+                pos = len(self.order)
             pot = self.lqueue[pos]
             pot.listap.append(p)
             
@@ -184,12 +182,12 @@ class problemaTrianFactor:
         res = []
         for p in self.pinicial.listap:
             old = np.sum(p.tabla)
-            oldl = len(p.listavar)
-            vcl = set(p.listavar)
+            oldl = len(p.listvar)
+            vcl = set(p.listvar)
             if vcl:
                 pos = min(map(lambda h: self.posvar[h], vcl))
             else:
-                pos = len(self.orden)
+                pos = len(self.order)
 
             pot = self.lqueue[pos]
             npot = pot.marginalizas( set(pot.getvars()) - vcl)
@@ -200,17 +198,17 @@ class problemaTrianFactor:
                 p.combina(q, inplace=True)
             new = np.sum(p.tabla)
             if new < old:
-                print("mejora ", old, new, len(p.listavar))
+                print("mejora ", old, new, len(p.listvar))
                 res.append(p)
                 # sleep(2)            
         return res
 
     def borraproi(self):
         
-        for i in reversed(range(len(self.orden))):
+        for i in reversed(range(len(self.order))):
             if self.inicial.contradict:
                 break
-            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            print("i= ", i, "var = ", self.order[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
 
            
@@ -239,9 +237,9 @@ class problemaTrianFactor:
     def mejoradespues(self):
         for p in self.pinicial.listap:
             old = np.sum(p.tabla)
-            pos = min(map(lambda h: self.posvar[h],p.listavar))
+            pos = min(map(lambda h: self.posvar[h],p.listvar))
             pot = self.lqueue[pos]
-            potn = pot.marginalizaset(pot.getvars() - set(p.listavar), Q=self.Q, ver=False, inplace=False) #EDM
+            potn = pot.marginalizaset(pot.getvars() - set(p.listvar), Q=self.Q, ver=False, inplace=False) #EDM
             tablan = potn.atabla()
             p.combina(tablan, inplace=True)    
             nu =  np.sum(p.tabla)
@@ -252,10 +250,10 @@ class problemaTrianFactor:
     def borrai(self):
         
 
-        for i in reversed(range(len(self.orden))):
+        for i in reversed(range(len(self.order))):
             if self.inicial.contradict:
                 break
-            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            print("i= ", i, "var = ", self.order[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
             
             if pot.contradict:
@@ -275,26 +273,16 @@ class problemaTrianFactor:
                 potn = pot.marginalizaset(dif, Q=self.Q,ver = False,inplace=False) #EDM
                 self.lqueue[j].combina(potn)
 
-    def pasaarbol(self):
-        for i in range(len(self.lqueue)):
-            print("arbol ", i)
-            print("cluster ", self.clusters[i])
-
-            p = self.lqueue[i]
-            ap = calculadesdePotencial(p)
-                       
-            self.lqueue[i] = ap
-
     def combinaincluidos(self):
-        for i in range(len(self.orden)):
-            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+        for i in range(len(self.order)):
+            print("i= ", i, "var = ", self.order[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
             pot.combinaincluidos()
 
     def calculanu(self):
         nu = set()
-        for i in range(len(self.orden)):
-            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+        for i in range(len(self.order)):
+            print("i= ", i, "var = ", self.order[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
             for p in pot.listap:
                 nu.update(p.calculaunit())
@@ -302,13 +290,13 @@ class problemaTrianFactor:
         return nu
 
     def limpia(self):
-        for i in range(len(self.orden)):
-            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+        for i in range(len(self.order)):
+            print("i= ", i, "var = ", self.order[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
             bor =  []
             for p in pot.listap:
                 if p.trivial():
-                    print("uno trivial", p.listavar)
+                    print("uno trivial", p.listvar)
                     bor.append(p)
                 if p.contradict():
                     self.anula()
@@ -320,7 +308,7 @@ class problemaTrianFactor:
 
     def crealistatop(self,top):
         lista = self.toriginalfl.copy()
-        lista.sort(key = lambda x: top.index(x.listavar.copy().pop()))
+        lista.sort(key = lambda x: top.index(x.listvar.copy().pop()))
         return lista
 
     def likelihoode(self):
@@ -332,16 +320,16 @@ class problemaTrianFactor:
         lista = []
 
         for x in self.toriginalfl:
-            lista.append(x.listavar.copy())
+            lista.append(x.listvar.copy())
         
-        toporden = topologico(lista)
+        toporder = topologico(lista)
         
-        self.orden = toporden[::-1]
+        self.order = toporder[::-1]
 
        
 
        
-        self.lfloat = self.crealistatop(toporden)
+        self.lfloat = self.crealistatop(toporder)
 
         pesos = 0.0
         pesos2 = 0.0
@@ -360,13 +348,13 @@ class problemaTrianFactor:
         print(len(logicalpot))
         sleep(3)
 
-        K = len(toporden)
+        K = len(toporder)
         
         for j in range(N):
             sol = []
             pe = 1.0
             for i in range(K):
-                v = toporden[i]
+                v = toporder[i]
                 pot = self.lfloat[i]
                 potr = pot.reduce(sol)
                 if v in vare:
@@ -447,7 +435,7 @@ class problemaTrianFactor:
         for x in self.evid:
             self.rela.insertaru(x)
         for p in self.toriginalfl:
-            q = nodoTabla(p.listavar)
+            q = nodoTabla(p.listvar)
             q.tabla = p.tabla > 0
             if not q.trivial():
                 self.rela.insertar(q)
@@ -465,12 +453,12 @@ class problemaTrianFactor:
 
 
         if pre:
-            (e,orden,nuevas,antiguas)= self.rela.marginalizaset(set(self.orden), Q=self.Q,pre = True, orden = self.orden.copy()) #EDM
+            (e,order,nuevas,antiguas)= self.rela.marginalizaset(set(self.order), Q=self.Q,pre = True, order = self.order.copy()) #EDM
         else:
-            (e,orden,nuevas,antiguas)= self.rela.marginalizaset(self.pinicial.getvars(), Q=self.Q,pre = False) #EDM
+            (e,order,nuevas,antiguas)= self.rela.marginalizaset(self.pinicial.getvars(), Q=self.Q,pre = False) #EDM
         self.contradict =  self.rela.contradict
         if not pre:
-            self.orden = self.orden +  orden
+            self.order = self.order +  order
         i=0
         if not self.contradict:
             for x in antiguas:
@@ -492,8 +480,8 @@ class problemaTrianFactor:
                 sp = p.extraesimple()
                 if not sp.trivial():
 
-                    if len(sp.listavar) == 1:
-                        var = sp.listavar[0]
+                    if len(sp.listvar) == 1:
+                        var = sp.listvar[0]
                         areducir = rela.get(var)
                         print(" i " , i , "var ", var, "reduccion unitaria ")
                         i +=1
@@ -514,9 +502,9 @@ class problemaTrianFactor:
                                 rela.insertar(r)
 
 
-                    elif len(sp.listavar) == 2:
-                        v1 = sp.listavar[0]
-                        v2 = sp.listavar[1]
+                    elif len(sp.listvar) == 2:
+                        v1 = sp.listvar[0]
+                        v2 = sp.listvar[1]
                         
                         det1 = sp.checkdetermi(v2)
                         if not det1:
@@ -553,13 +541,13 @@ class problemaTrianFactor:
                         
             
     def borra(self):
-        print(len(self.orden))
+        print(len(self.order))
 
-        for i in range(len(self.orden)):
+        for i in range(len(self.order)):
             if self.inicial.contradict:
                 break
-            var = self.orden[i]
-            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            var = self.order[i]
+            print("i= ", i, "var = ", self.order[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
        
             # pot.imprime()
@@ -595,12 +583,12 @@ class problemaTrianFactor:
             #     self.inserta(potn)
 
     def borrapro(self):
-        print(len(self.orden))
-        for i in range(len(self.orden)):
+        print(len(self.order))
+        for i in range(len(self.order)):
             if self.inicial.contradict:
                 break
-            var = self.orden[i]
-            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            var = self.order[i]
+            print("i= ", i, "var = ", self.order[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
        
             # pot.imprime()
@@ -647,22 +635,22 @@ class problemaTrianFactor:
 
     def findsol(self):
         sol = set()
-        for i in reversed(range(len(self.orden))):
+        for i in reversed(range(len(self.order))):
             print(i)
             tabla = self.lqueue[i]
             
 
             
             
-            var = self.orden[i]
+            var = self.order[i]
             print(var) #EDM
-            # print(tabla.listavar,tabla.tabla)
+            # print(tabla.listvar,tabla.tabla)
 
             t = tabla.reduce(list(sol))
-            # print(t.listavar,t.tabla)
+            # print(t.listvar,t.tabla)
 
-            if len(t.listavar) > 1:
-                for x in t.listavar:
+            if len(t.listvar) > 1:
+                for x in t.listvar:
                     if not x == var:
                         sol.add(x) 
                 t = t.reduce(list(sol))
@@ -695,7 +683,7 @@ class problemaTrianFactor:
 
     def findallsol(self):
         soll = [set()]
-        for i in reversed(range(len(self.orden))):
+        for i in reversed(range(len(self.order))):
             print(i)
             sleep(1)
             tabla = self.lqueue[i]
@@ -703,13 +691,13 @@ class problemaTrianFactor:
 
             
             
-            var = self.orden[i]
+            var = self.order[i]
             print(var)
-            # print(tabla.listavar,tabla.tabla)
+            # print(tabla.listvar,tabla.tabla)
             nsol = []
             for sol in soll:
                 t = tabla.reduce(list(sol))
-            # print(t.listavar, t.tabla)
+            # print(t.listvar, t.tabla)
                 if t.contradict():
                     print("contradiccion buscando solucion" , sol )
                     sol = []
@@ -739,7 +727,7 @@ class problemaTrianFactor:
     
     def randomsol(self,T=40000):
         sol = []
-        i = len(self.orden)-1
+        i = len(self.order)-1
         k = 0
         while i >0 and k<T:
             k+=1
@@ -751,7 +739,7 @@ class problemaTrianFactor:
 
             pots = pot.tosimple()
             
-            var = self.orden[i]
+            var = self.order[i]
             
             if pots.contradict:
                 pot = self.lqueue[i].copia()
@@ -789,7 +777,7 @@ class problemaTrianFactor:
     def compruebaSol(self):
         aux = 0
         print("entro en comprueba solucion")
-        for clau in self.inicial.listaclausOriginal:
+        for clau in self.inicial.listclausOriginal:
             print(clau)
             aux = aux + 1
             if len(clau.intersection(self.sol))==0:
@@ -804,7 +792,7 @@ class problemaTrianFactor:
                     self.problemacontradict()
                 else:
                     j = i+1
-                    vars = set(map(lambda x: abs(x),conf.union(t.value.listavar)) )
+                    vars = set(map(lambda x: abs(x),conf.union(t.value.listvar)) )
                     # j = min(map(lambda h: self.posvar[h],vars))
                     while not vars <= self.clusters[j]:
                         j += 1
@@ -840,7 +828,7 @@ class problemaTrianFactor:
                     self.problemacontradict()
                 else:
                     j = i-1
-                    vars = set(map(lambda x: abs(x),conf.union(t.value.listavar)) )
+                    vars = set(map(lambda x: abs(x),conf.union(t.value.listvar)) )
                     # j = min(map(lambda h: self.posvar[h],vars))
                     while not vars <= self.clusters[self.maximal[j]]:
                         j -= 1

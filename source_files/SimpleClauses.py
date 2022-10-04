@@ -1,34 +1,34 @@
 # -*- coding: utf-8 -*-
 import networkx as nx
 
-class simpleClausulas:
+class simpleClauses:
     def __init__(self):
-         self.listaclaus = []
+         self.listclaus = []
          self.contradict = False
-         self.listavar = set()    
+         self.listvar = set()    
          self.solved = False
          self.solution = set()
          self.unit = set()
-         self.listaclausOriginal = []
+         self.listclausOriginal = []
          
-    def insertar(self,x, test=True):
+    def insert(self,x, test=True):
         if self.contradict:
             return []
         if not x:
             self.anula()
             self.contradict= True
-            self.listaclaus.append(set())
+            self.listclaus.append(set())
             return []
         y = []
         borr = []
         if len(x) ==1:
             v = x.pop()
             if -v in self.unit:
-                self.insertar(set())
+                self.insert(set())
             else:
-                self.listavar.add(abs(v))
+                self.listvar.add(abs(v))
                 self.unit.add(v)
-                for cl in self.listaclaus:
+                for cl in self.listclaus:
                     if v in cl:
                         borr.append(cl)
                     if -v in cl:
@@ -42,11 +42,11 @@ class simpleClausulas:
                 neg = set(map(lambda x: -x, self.unit))
                 x = x-neg
                 if len(x) <= 1:
-                    self.insertar(x)
+                    self.insert(x)
                     return
                 
             if test:
-                for cl in self.listaclaus:
+                for cl in self.listclaus:
                     if len(x) <= len(cl):
                         claudif = x-cl
                         if not claudif:
@@ -67,15 +67,15 @@ class simpleClausulas:
                                 x.discard(-var)
                                 for cl in borr:
                                     self.eliminar(cl)
-                                self.insertar(x)
+                                self.insert(x)
                                 return []
             nvar = set(map(abs,x))
-            self.listavar.update(nvar)
-            self.listaclaus.append(x)
+            self.listvar.update(nvar)
+            self.listclaus.append(x)
         for cl in borr:
             self.eliminars(cl)
         for cl in y:
-            self.insertar(cl)
+            self.insert(cl)
 
 
     def eliminar(self,x):
@@ -84,45 +84,35 @@ class simpleClausulas:
             self.unit.discard(v)
             return
         try:
-            self.listaclaus.remove(x)
+            self.listclaus.remove(x)
         except:
             ValueError
 
             
     def eliminars(self,x):
         try:
-            self.listaclaus.remove(x)
+            self.listclaus.remove(x)
         except:
             ValueError
 
             
     def anula(self):
-        self.listaclaus.clear()
-        self.listavar.clear()
+        self.listclaus.clear()
+        self.listvar.clear()
         self.unit.clear()
 
-
-    # def cgrafo(self):
-    #     grafo = nx.Graph()
-    #     grafo.add_nodes_from(self.listavar)
-    #     for cl in self.listaclaus:
-    #        for u in cl:
-    #                for v in cl:
-    #                    if not abs(u)==abs(v):
-    #                        grafo.add_edge(abs(u),abs(v))                     
-    #     return grafo
 
     
     def simplificaunit(self,v):
         if -v in self.unit:
-            self.insertar(set())
+            self.insert(set())
         if v in self.unit:
             self.unit.discard(v)
-            self.listavar.discard(abs(v))
+            self.listvar.discard(abs(v))
         else:
             y = []
             borr = []
-            for cl in self.listaclaus:
+            for cl in self.listclaus:
                 if -v in cl:
                     borr.append(cl)
                     cl.discard(-v)
@@ -132,7 +122,7 @@ class simpleClausulas:
             for cl in borr:
                 self.eliminars(cl)
             for cl in y:
-                self.insertar(cl)
+                self.insert(cl)
                         
                 
     def combina(self,simple):
@@ -140,9 +130,9 @@ class simpleClausulas:
             return
         neg = set(map(lambda x: -x, simple.unit))
         if neg.intersection(self.unit):
-            self.insertar(set())
+            self.insert(set())
         else:
             for v in simple.unit:
-                self.insertar({v})
-            for cl in simple.listaclaus:
-                self.insertar(cl)
+                self.insert({v})
+            for cl in simple.listclaus:
+                self.insert(cl)

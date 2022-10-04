@@ -1,46 +1,45 @@
 # -*- coding: utf-8 -*-
 import networkx as nx    
-from SimpleClausulas import *
-from  ProblemaTrianFactor import *
+from source_files.SimpleClauses import *
+from source_files.ProblemaTrianFactor import *
 from time import *
-from utils import *
-from arboltablaglobal import *
+from source_files.utils import *
 
 
-def openFileCNF(Archivo):
-    reader=open(Archivo,"r") 
-    cadena = reader.readline()
-    while cadena[0]=='c':
-        cadena = reader.readline()
-    cadena.strip()
-    listaaux = cadena.split()
-    print(listaaux)
-    nvar = int(listaaux[2])
-    nclaus = int(listaaux[3])
+def openFileCNF(fileCNF):
+    reader=open(fileCNF,"r") 
+    line = reader.readline()
+    while line[0]=='c':
+        line = reader.readline()
+    line.strip()
+    listaux = line.split()
+    print(listaux)
+    nvar = int(listaux[2])
+    nclaus = int(listaux[3])
     print(nvar)
-    while cadena[0]=='c':
-        cadena = reader.readline()
-    infor = simpleClausulas()
-    for cadena in reader:
-        if (cadena[0]!='c'):
-            cadena.strip()
-            listaux=cadena.split()
+    while line[0]=='c':
+        line = reader.readline()
+    infor = simpleClauses()
+    for line in reader:
+        if (line[0]!='c'):
+            line.strip()
+            listaux=line.split()
             listaux.pop()
             listaux = map(int,listaux)
-            clausula= set(listaux)
-            nc = set( map(lambda t: -t, clausula))
-            infor.listaclausOriginal.append(clausula.copy())
-            if not nc.intersection(clausula):
-                infor.insertar(clausula, test = False)
+            clause= set(listaux)
+            nc = set( map(lambda t: -t, clause))
+            infor.listclausOriginal.append(clause.copy())
+            if not nc.intersection(clause):
+                infor.insert(clause, test = False)
             else:
-               print("trivial ", clausula)
+               print("trivial ", clause)
             if infor.contradict:
-                print("contradiccion leyendo")    
+                print("reading contradiction")    
     return infor, nvar, nclaus
 
     
 def triangulap(pot):
-    orden = []
+    order = []
     clusters = []
     borr = []
     child = []
@@ -48,7 +47,7 @@ def triangulap(pot):
     total = set()
     dvar = dict()
     for p in pot.listap:
-        con = set(p.listavar)
+        con = set(p.listvar)
         print(con)
         total.update(con)
         for v in con:
@@ -63,11 +62,11 @@ def triangulap(pot):
     i= 0
     units = pot.unit.copy()
     while units:
-        nnodo = abs(units.pop())
-        orden.append(nnodo)
-        clus = {nnodo}
+        nnode = abs(units.pop())
+        order.append(nnode)
+        clus = {nnode}
         clusters.append(clus)
-        posvar[nnodo] = i
+        posvar[nnode] = i
         print( i, clus) 
         i+=1
     value = dict()
@@ -79,31 +78,31 @@ def triangulap(pot):
         value[x] = 2**(len(totvar[x])-1) - sum([2**len(y) for y in dvar[x]])  
     i = 0
     while total:
-        nnodo = min(value, key = value.get )
-        orden.append(nnodo)
+        nnode = min(value, key = value.get )
+        order.append(nnode)
         clus = set()
-        for x in dvar[nnodo]:
+        for x in dvar[nnode]:
             clus.update(x)
         clusters.append(clus)
-        posvar[nnodo] = i
+        posvar[nnode] = i
         print( i, clus)
         i+=1
-        clustersin = clus-{nnodo}
+        clustersin = clus-{nnode}
         for y in clustersin:
-            dvar[y] = list(filter( lambda h: nnodo not in h  ,dvar[y] ))
+            dvar[y] = list(filter( lambda h: nnode not in h  ,dvar[y] ))
             dvar[y].append(clustersin)
             totvar[y] = set()
             for h in dvar[y]:
                 totvar[y].update(h)
             value[y] = 2**(len(totvar[y])-1) - sum([2**len(z) for z in dvar[y]])
-        del value[nnodo]
-        del dvar[nnodo]
-        del totvar[nnodo]
-        total.discard(nnodo)
+        del value[nnode]
+        del dvar[nnode]
+        del totvar[nnode]
+        total.discard(nnode)
     clusters.append(set())
     for i in range(n):
             con = clusters[i]
-            cons = con - {orden[i]}
+            cons = con - {order[i]}
             if not cons:
                 parent[i] = n
                 child[n].add(i)
@@ -111,7 +110,7 @@ def triangulap(pot):
                 pos = min(map(lambda h: posvar[h], cons))
                 parent[i] = pos
                 child[pos].add(i)
-    return (orden,clusters,borr,posvar,child,parent) 
+    return (order,clusters,borr,posvar,child,parent) 
     
 
 def main(prob, Previo=True, Mejora=False):
@@ -145,7 +144,7 @@ def main(prob, Previo=True, Mejora=False):
 
 
 def treeWidth(prob):
-    (orden,clusters,borr,posvar,child,parent) = triangulap(prob.pinicial)
+    (order,clusters,borr,posvar,child,parent) = triangulap(prob.pinicial)
     sizes = map(len,clusters)
     return(max(sizes))
 
@@ -172,7 +171,7 @@ def computetreewidhts(archivolee):
     reader.close()
 
 
-def borradocontablas(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[True], Partir=[True], archivogenera="salida.csv"):
+def deleting_with_tables(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[True], Partir=[True], archivogenera="salida.csv"):
     try:
         reader=open(archivolee,"r")
         writer=open(archivogenera,"w")
@@ -216,4 +215,4 @@ def borradocontablas(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[Tr
     except ValueError:
         print("Error")
 # computetreewidhts("ListaCNF_Experimento.txt")
-borradocontablas("entrada",[5,10,15,20,25],[False],[False],[False,True],"prueba05.txt")
+# deleting_with_tables("../data_In_Out/entrada",[5,10,15,20,25],[False],[False],[False,True],"../data_In_Out/prueba05.txt")

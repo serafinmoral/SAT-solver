@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from xmlrpc.client import boolean
-import utils as u
+import source_files.utils as u
 
 import networkx as nx
 import numpy as np
-from SimpleClausulas import * 
+from source_files.SimpleClauses import * 
 from time import *
 import math
 import random
@@ -14,13 +14,13 @@ class nodoTabla:
     
     def __init__(self, lista):
         
-        self.listavar = lista
+        self.listvar = lista
         n = len(lista)
         t = (2,)*n
         self.tabla = np.ones( dtype = boolean, shape = t)
     
     def copia(self):
-        result = nodoTabla(self.listavar.copy())
+        result = nodoTabla(self.listvar.copy())
         result.tabla = self.tabla.copy()
         return result
     
@@ -35,7 +35,7 @@ class nodoTabla:
     def extrae21(self,v,vars):
         res = []
         for w in vars:
-            p = self.borra(list(set(self.listavar) - {v,w}), inplace=False)
+            p = self.borra(list(set(self.listvar) - {v,w}), inplace=False)
             if not p.trivial():
                 res.append(p)
         return res
@@ -49,7 +49,7 @@ class nodoTabla:
 
         t = self.minimiza(h, pro = {v})
 
-        if len(t.listavar) ==len(self.listavar):
+        if len(t.listvar) ==len(self.listvar):
             res.append(self)
         else:
             res.append(t)
@@ -72,7 +72,7 @@ class nodoTabla:
 
     def minentropia(self):
             
-            return min(self.listavar,key = lambda v: self.entropia(v))
+            return min(self.listvar,key = lambda v: self.entropia(v))
 
 
     def neg(self,inplace=False):
@@ -82,7 +82,7 @@ class nodoTabla:
             self.tabla = nuevatabla
             res = self
         else:
-            res = nodoTabla(self.listavar.copy())
+            res = nodoTabla(self.listvar.copy())
             res.tabla = nuevatabla
 
         return res
@@ -104,7 +104,7 @@ class nodoTabla:
             return False
 
     def minimiza(self, con  , pro = set()):
-        rest =  set(self.listavar)-pro
+        rest =  set(self.listvar)-pro
         if not rest:
             return self
         else:
@@ -131,31 +131,31 @@ class nodoTabla:
 
         if not des:
             op = op.copia()
-        extra = set(op.listavar) - set(result.listavar)
+        extra = set(op.listvar) - set(result.listvar)
         if extra:
-                slice_ = [slice(None)] * len(result.listavar)
+                slice_ = [slice(None)] * len(result.listvar)
                 slice_.extend([np.newaxis] * len(extra))
 
                 result.tabla = result.tabla[tuple(slice_)]
 
-                result.listavar.extend(extra)
+                result.listvar.extend(extra)
 
-        extra = set(result.listavar) - set(op.listavar)
+        extra = set(result.listvar) - set(op.listvar)
         if extra:
-                slice_ = [slice(None)] * len(op.listavar)
+                slice_ = [slice(None)] * len(op.listvar)
                 slice_.extend([np.newaxis] * len(extra))
 
                 op.tabla = op.tabla[tuple(slice_)]
 
-                op.listavar.extend(extra)
+                op.listvar.extend(extra)
                 # No need to modify cardinality as we don't need it.
 
             # rearranging the axes of phi1 to match phi
         for axis in range(result.tabla.ndim):
-            exchange_index = op.listavar.index(result.listavar[axis])
-            op.listavar[axis], op.listavar[exchange_index] = (
-                op.listavar[exchange_index],
-                op.listavar[axis],
+            exchange_index = op.listvar.index(result.listvar[axis])
+            op.listvar[axis], op.listvar[exchange_index] = (
+                op.listvar[exchange_index],
+                op.listvar[axis],
             )
             op.tabla = op.tabla.swapaxes(axis, exchange_index)
 
@@ -164,7 +164,7 @@ class nodoTabla:
             return result
 
     def checkdetermi(self,v):
-        if v not in self.listavar:
+        if v not in self.listvar:
             return False
         t0 = self.reduce([v])
         t1 = self.reduce([-v])
@@ -180,7 +180,7 @@ class nodoTabla:
         return u.contenida(self,listanodos) 
 
     def minimizadep(self,v, seg = set()):
-        vars = set(self.listavar) - seg
+        vars = set(self.listvar) - seg
         vars.remove(v)
 
         if not vars:
@@ -200,7 +200,7 @@ class nodoTabla:
 
     def extraesimple(self):
         
-        vars = set(self.listavar)
+        vars = set(self.listvar)
         if not vars:
             return nodoTabla([])
         v = vars.pop()
@@ -222,7 +222,7 @@ class nodoTabla:
                 return nodoTabla([])
 
     def mejora(self,q):
-            vars = list(set(q.listavar) - set(self.listavar))
+            vars = list(set(q.listvar) - set(self.listvar))
             res = self.combina(q.borra(vars))
             return res
 
@@ -256,31 +256,31 @@ class nodoTabla:
 
         if not des:
             op = op.copia()
-        extra = set(op.listavar) - set(result.listavar)
+        extra = set(op.listvar) - set(result.listvar)
         if extra:
-                slice_ = [slice(None)] * len(result.listavar)
+                slice_ = [slice(None)] * len(result.listvar)
                 slice_.extend([np.newaxis] * len(extra))
 
                 result.tabla = result.tabla[tuple(slice_)]
 
-                result.listavar.extend(extra)
+                result.listvar.extend(extra)
 
-        extra = set(result.listavar) - set(op.listavar)
+        extra = set(result.listvar) - set(op.listvar)
         if extra:
-                slice_ = [slice(None)] * len(op.listavar)
+                slice_ = [slice(None)] * len(op.listvar)
                 slice_.extend([np.newaxis] * len(extra))
 
                 op.tabla = op.tabla[tuple(slice_)]
 
-                op.listavar.extend(extra)
+                op.listvar.extend(extra)
                 # No need to modify cardinality as we don't need it.
 
             # rearranging the axes of phi1 to match phi
         for axis in range(result.tabla.ndim):
-            exchange_index = op.listavar.index(result.listavar[axis])
-            op.listavar[axis], op.listavar[exchange_index] = (
-                op.listavar[exchange_index],
-                op.listavar[axis],
+            exchange_index = op.listvar.index(result.listvar[axis])
+            op.listvar[axis], op.listvar[exchange_index] = (
+                op.listvar[exchange_index],
+                op.listvar[axis],
             )
             op.tabla = op.tabla.swapaxes(axis, exchange_index)
 
@@ -291,7 +291,7 @@ class nodoTabla:
 
     def reduce(self, val, inplace=False):
         
-        values = filter(lambda x: abs(x) in  self.listavar, val)
+        values = filter(lambda x: abs(x) in  self.listvar, val)
         phi = self if inplace else self.copia()
 
         values = [
@@ -299,17 +299,17 @@ class nodoTabla:
             ]
 
         var_index_to_del = []
-        slice_ = [slice(None)] * len(self.listavar)
+        slice_ = [slice(None)] * len(self.listvar)
         for var, state in values:
-            var_index = phi.listavar.index(var)
+            var_index = phi.listvar.index(var)
             slice_[var_index] = state
             var_index_to_del.append(var_index)
 
         var_index_to_keep = sorted(
-            set(range(len(phi.listavar))) - set(var_index_to_del)
+            set(range(len(phi.listvar))) - set(var_index_to_del)
         )
         # set difference is not guaranteed to maintain ordering
-        phi.listavar = [phi.listavar[index] for index in var_index_to_keep]
+        phi.listvar = [phi.listvar[index] for index in var_index_to_keep]
         
 
         phi.tabla= phi.tabla[tuple(slice_)]
@@ -324,7 +324,7 @@ class nodoTabla:
     
     def introduceclau(self, values):
         for var in values:
-            if abs(var) not in self.listavar:
+            if abs(var) not in self.listvar:
                 raise ValueError(f"La variable: {abs(var)} no está en el potencial")
 
 
@@ -332,9 +332,9 @@ class nodoTabla:
                 (abs(var), 1 if var<0 else 0) for var in values
             ]
 
-        slice_ = [slice(None)] * len(self.listavar)
+        slice_ = [slice(None)] * len(self.listvar)
         for var, state in values:
-            var_index = self.listavar.index(var)
+            var_index = self.listvar.index(var)
             slice_[var_index] = state
 
         
@@ -351,13 +351,13 @@ class nodoTabla:
 
         phi = self if inplace else self.copia()   
         for var in variables:
-            if var not in phi.listavar:
+            if var not in phi.listvar:
                 raise ValueError(f"{var} no está en la lista.")
 
-        var_indexes = [phi.listavar.index(var) for var in variables]
+        var_indexes = [phi.listvar.index(var) for var in variables]
 
-        index_to_keep = sorted(set(range(len(self.listavar))) - set(var_indexes))
-        phi.listavar = [phi.listavar[index] for index in index_to_keep]
+        index_to_keep = sorted(set(range(len(self.listvar))) - set(var_indexes))
+        phi.listvar = [phi.listvar[index] for index in index_to_keep]
 
         phi.tabla = np.amax(phi.tabla, axis=tuple(var_indexes))
 
@@ -375,7 +375,7 @@ class nodoTabla:
         return (x0,x1)
 
     def anula(self):
-        self.listavar = []
+        self.listvar = []
         self.tabla = False
 
     def trivial(self):
@@ -383,7 +383,7 @@ class nodoTabla:
 
     def calculaunit(self):
         result = set()
-        n = len(self.listavar)
+        n = len(self.listvar)
         total = set(range(n))
         for i in range(n):
             
@@ -395,9 +395,9 @@ class nodoTabla:
                     result.add(0)
                     return result
                 else:
-                    result.add(self.listavar[i])
+                    result.add(self.listvar[i])
             elif  not marg[1]:    
-                    result.add(-self.listavar[i])
+                    result.add(-self.listvar[i])
         return result
           
     
@@ -426,7 +426,7 @@ class PotencialTabla:
             print("tablas ")
             print("contradiccion ", self.contradict)
             for x in self.listap:
-                print("vars" , x.listavar)
+                print("vars" , x.listvar)
                 print(x.tabla)
 
         def cgrafo(self):
@@ -434,13 +434,13 @@ class PotencialTabla:
         
             vars = set(map(abs,self.unit))
             for p in self.listap:
-                vars.update(p.listavar)
+                vars.update(p.listvar)
         
         
             for p in self.listap:
-                for i in range(len(p.listavar)):
-                    for j in range(i+1,len(p.listavar)):
-                           grafo.add_edge(p.listavar[i],p.listavar[j])    
+                for i in range(len(p.listvar)):
+                    for j in range(i+1,len(p.listvar)):
+                           grafo.add_edge(p.listvar[i],p.listvar[j])    
             return grafo 
 
         
@@ -461,27 +461,27 @@ class PotencialTabla:
 
 
             for p in self.listap:
-                res.update(set(p.listavar))
+                res.update(set(p.listvar))
             return res
 
         def getvarsp(self):
             res = set()
     
             for p in self.listap:
-                res.update(set(p.listavar))
+                res.update(set(p.listvar))
             return res
 
         def getvarspv(self,v):
             res = set()
     
             for p in self.listap:
-                if v in p.listavar:
-                    res.update(set(p.listavar))
+                if v in p.listvar:
+                    res.update(set(p.listvar))
             return res
 
         def computefromsimple(self,simple):
             self.unit = simple.unit.copy()
-            (sets,clusters) = u.createclusters(simple.listaclaus)
+            (sets,clusters) = u.createclusters(simple.listclaus)
             for i in range(len(sets)):
                 x = nodoTabla(list(sets[i]))
                 x.introducelista(clusters[i])
@@ -501,14 +501,14 @@ class PotencialTabla:
                 if m==0:
                     h = np.sum(p.tabla)
 
-                    for x in p.listavar:
+                    for x in p.listvar:
                         if h == 0:
                             
                             cont[x] += 100.0
                         else:
                             cont[x] += 1/h
                 else:
-                    for x in p.listavar:
+                    for x in p.listvar:
                         
                             
                             cont[x]+=1
@@ -532,8 +532,8 @@ class PotencialTabla:
             insertado = False
             p.reduce(self.unit,inplace=True)
             for q in self.listap:
-                sql = set(q.listavar)
-                spl = set(p.listavar)
+                sql = set(q.listvar)
+                spl = set(p.listvar)
                 tot = sql.union(spl)
 
                 if len(tot)<= M:
@@ -556,13 +556,13 @@ class PotencialTabla:
                     i=0
                     while i < len(self.listap):
                         p = self.listap[i]
-                        if len(p.listavar) == K:
-                            for v in p.listavar:
+                        if len(p.listvar) == K:
+                            for v in p.listvar:
                                     deter = p.checkdetermi(v)
                                     if deter:
                                         varb.append(v)
                                         potb.append(p)
-                                        # print("variable ", v, " determinada ", p.listavar)
+                                        # print("variable ", v, " determinada ", p.listvar)
                                         # print(p.tabla)
                                         self.borrad(v,p)
                                         total += 1
@@ -575,8 +575,8 @@ class PotencialTabla:
             tota = set()
             for i in range(len(self.listap)):
                 q = self.listap[i]
-                if v in q.listavar:
-                    # print("var pot", q.listavar)
+                if v in q.listvar:
+                    # print("var pot", q.listvar)
                     if q == p:
                         h = q.borra([v],inplace = False)
                         if h.trivial():
@@ -600,8 +600,8 @@ class PotencialTabla:
             bor = []
             for i in range(len(self.listap)):
                 q = self.listap[i]
-                if v2 in q.listavar:
-                    # print("var pot", q.listavar)
+                if v2 in q.listvar:
+                    # print("var pot", q.listvar)
                     if q == p:
                         h = q.borra([v2],inplace = False)
                         if h.trivial():
@@ -611,7 +611,7 @@ class PotencialTabla:
                         
                     else:
                         h = q.combina(p,inplace = False, des= False)
-                        if v1 in p.listavar:
+                        if v1 in p.listvar:
                             an = True
                         else:
                             an = False
@@ -630,14 +630,14 @@ class PotencialTabla:
                     
         def mejoralocal(self,M=25,Q=10):
             for p in self.listap:
-                if len(p.listavar)<=Q:
+                if len(p.listvar)<=Q:
                     old = np.sum(p.tabla)
-                    vars = set(p.listavar)
-                    tvars = set(p.listavar)
+                    vars = set(p.listvar)
+                    tvars = set(p.listvar)
                     lista = []
                     for q in self.listap:
                         if not q==p:
-                            qv = set(q.listavar)
+                            qv = set(q.listvar)
                             if set(qv.intersection(vars)):
                                 if len(tvars.union(qv))<=M:
                                     tvars.update(qv)
@@ -645,7 +645,7 @@ class PotencialTabla:
                     vars = tvars.copy()
                     for q in self.listap:
                         if not q==p:
-                            qv = set(q.listavar)
+                            qv = set(q.listvar)
                             if set(qv.intersection(vars)):
                                 if len(tvars.union(qv))<=M:
                                     tvars.update(qv)
@@ -653,12 +653,12 @@ class PotencialTabla:
                     r = nodoTabla([])
                     for q in lista:
                         r.combina(q,inplace=True)
-                    r.borra(list(tvars-set(p.listavar)),inplace=True)
+                    r.borra(list(tvars-set(p.listvar)),inplace=True)
                     p.combina(r,inplace=True)
                     ns = np.sum(p.tabla)
 
                     if (ns < old):
-                        print("mejopra", ns, old,len(p.listavar))
+                        print("mejopra", ns, old,len(p.listvar))
 
                     
 
@@ -696,7 +696,7 @@ class PotencialTabla:
                 x0 = 1.0
                 x1 = 1.0
                 for p in self.listap:
-                    if v in p.listavar:
+                    if v in p.listvar:
                         (y0,y1) = p.cuenta(v)
                         x0 *= y0
                         x1 *= y1
@@ -711,7 +711,7 @@ class PotencialTabla:
                 x0 = 0.0
                 x1 = 0.0
                 for p in self.listap:
-                    if v in p.listavar:
+                    if v in p.listvar:
                         (y0,y1) = p.cuenta(v)
                         if y0 == 0:
                             return (0,1)
@@ -738,7 +738,7 @@ class PotencialTabla:
 
         def prop(self):
             y = np.sum(self.tabla)
-            return y/2**(len(self.listavar))
+            return y/2**(len(self.listvar))
 
             
 
@@ -755,7 +755,7 @@ class PotencialTabla:
             nu = set()
             borr = []
             for p in self.listap:
-                inter = vars.intersection(set(p.listavar))
+                inter = vars.intersection(set(p.listvar))
                 if inter:
                         nsu = set(filter(lambda x: abs(x) in inter, su))
                         p.reduce(nsu , inplace = True)
@@ -798,21 +798,21 @@ class PotencialTabla:
             bor = []
             un = set()
             for p in res.listap:
-                if varv.intersection(set(p.listavar)):
+                if varv.intersection(set(p.listvar)):
                     p.reduce(val,inplace = True)
         
-                    if len(p.listavar)<= 1:
+                    if len(p.listvar)<= 1:
                         if p.trivial():
                             bor.append(p)
                         if p.contradict():
                             res.anula()
                             return res
-                        if len(p.listavar) == 1:
+                        if len(p.listvar) == 1:
                             if not p.tabla[0]:
-                                un.add(p.listavar[0])
+                                un.add(p.listvar[0])
                                 bor.append(p)
                             elif not p.tabla[1]:
-                                un.add(-p.listavar[0])
+                                un.add(-p.listvar[0])
                                 bor.append(p)
 
             for p in bor:
@@ -833,7 +833,7 @@ class PotencialTabla:
                     return res
             res.unit = self.unit-{val}
             for p in self.listap:
-                if abs(val) in p.listavar:
+                if abs(val) in p.listvar:
                     q = p.reduce([val],inplace)
                     res.listap.append(q)
                     l.append(q)
@@ -855,14 +855,14 @@ class PotencialTabla:
             varst = set()
             actual = []
             for p in self.listap:
-                if v in p.listavar:
-                    if len(varst.union(set(p.listavar))) <= M:
+                if v in p.listvar:
+                    if len(varst.union(set(p.listvar))) <= M:
                         actual.append(p)
-                        varst.update(set(p.listavar))
+                        varst.update(set(p.listvar))
                     else:
                         lista.append(actual)
                         actual = [p]
-                        varst = set(p.listavar)
+                        varst = set(p.listvar)
                     
             if actual:
                 lista.append(actual)
@@ -873,15 +873,15 @@ class PotencialTabla:
                     self.listap.remove(p)
                     total.combina(p,inplace= True)
                 for p in l:
-                    npr = total.borra( set(total.listavar)- set(p.listavar)  , inplace=False)
+                    npr = total.borra( set(total.listvar)- set(p.listvar)  , inplace=False)
                     self.listap.append(npr)
                     print(np.sum(p.tabla))
                     print(np.sum( npr.tabla))
  
         def extrae2(self):
             for p in self.listap:
-                if len(p.listavar)>2:
-                    res = p.extrae2(set(p.listavar))
+                if len(p.listvar)>2:
+                    res = p.extrae2(set(p.listvar))
                 for q in res:
                     print("nuevo de dos")
                     sleep(0.1)
@@ -892,7 +892,7 @@ class PotencialTabla:
             bor = []
             uni = set()
             for p in l:
-                if len(p.listavar)<= M:
+                if len(p.listvar)<= M:
                     if p.trivial():
                         bor.append(p)
                     elif p.contradict():
@@ -922,8 +922,8 @@ class PotencialTabla:
 
                 sp = p.extraesimple()
                 if not sp.trivial():
-                    if len(sp.listavar) == 1:
-                        var = sp.listavar[0]
+                    if len(sp.listvar) == 1:
+                        var = sp.listvar[0]
                         if not sp.tabla[0]:
                             val = var
                         else:
@@ -933,9 +933,9 @@ class PotencialTabla:
                         for q in nl:
                             if not q in l:
                                 l.append(q)
-                    elif len(sp.listavar) == 2:
-                        v1 = sp.listavar[0]
-                        v2 = sp.listavar[1]
+                    elif len(sp.listvar) == 2:
+                        v1 = sp.listvar[0]
+                        v2 = sp.listvar[1]
                         
                         det1 = sp.checkdetermi(v2)
                         if not det1:
@@ -973,29 +973,29 @@ class PotencialTabla:
                 self.propagaunits(uni)
             return
 
-        def borrafacil(self,orden,M):
+        def borrafacil(self,order,M):
             
-            for var in orden:
+            for var in order:
                 su = self.marginalizacond(var,M)
                 if not su:
                     break
                 else:
                     print("borrada ", var)
 
-        def borrafacil2(self,M,orden):
+        def borrafacil2(self,M,order):
             
             l = []
 
 
-            for var in orden:
+            for var in order:
                 if var in self.getvars():
                     l1 = self.marginalizacond2(var,M)
                     l.extend(l1)
             return l
 
-        def combinafacil(self,orden,M):
+        def combinafacil(self,order,M):
             
-            for var in orden:
+            for var in order:
                 su = self.combinacond(var,M)
                 if not su:
                     break
@@ -1010,10 +1010,10 @@ class PotencialTabla:
                     print(i,j)
                     p = self.listap[i]
                     q = self.listap[j]
-                    inter = set(p.listavar).intersection(q.listavar)
+                    inter = set(p.listvar).intersection(q.listvar)
                     if inter:
-                        pnoq = list(set(p.listavar) - inter)
-                        qnop = list(set(q.listavar) - inter)
+                        pnoq = list(set(p.listvar) - inter)
+                        qnop = list(set(q.listvar) - inter)
                         if not qnop:
                             q.combina(p, inplace = True)
                         
@@ -1063,8 +1063,8 @@ class PotencialTabla:
                 for p in self.listap:
             
                 
-                    if var in p.listavar:
-                            vars.update(p.listavar)
+                    if var in p.listvar:
+                            vars.update(p.listvar)
                             si.append(p)
                             if not deter:
                                 deter = p.checkdetermi(var)
@@ -1077,7 +1077,7 @@ class PotencialTabla:
                 if deter:
                     dele = True
                     for q in si:
-                        if len(set(q.listavar).union(keyp.listavar)) >M+1:
+                        if len(set(q.listvar).union(keyp.listvar)) >M+1:
                             dele = False
                     if not dele:
                         return False
@@ -1098,7 +1098,7 @@ class PotencialTabla:
 
         
                 elif len(vars) <= M+1:
-                        si.sort(key = lambda h: - len(h.listavar) )
+                        si.sort(key = lambda h: - len(h.listvar) )
                         
                         p = nodoTabla([])
 
@@ -1154,7 +1154,7 @@ class PotencialTabla:
                
 
             for p in self.listap:
-                if var in p.listavar:
+                if var in p.listvar:
                     si.append(p)
             
             for p in si:
@@ -1163,7 +1163,7 @@ class PotencialTabla:
             (exact,lista,listaconvar) = u.marginaliza(si,var,M,Q)
 
             
-            if exact and lista and not lista[0].listavar:
+            if exact and lista and not lista[0].listvar:
                 if lista[0].contradict():
                     self.anula()    
                     return(True,lista)
@@ -1192,14 +1192,14 @@ class PotencialTabla:
                 for p in self.listap:
             
                 
-                    if var in p.listavar:
-                            vars.update(p.listavar)
+                    if var in p.listvar:
+                            vars.update(p.listvar)
                             si.append(p)
         
                 if len(si) <= 1:
                     return True
                 if len(vars) <= M:
-                        si.sort(key = lambda h: - len(h.listavar) )
+                        si.sort(key = lambda h: - len(h.listvar) )
                         
                         p = nodoTabla([])
 
@@ -1254,7 +1254,7 @@ class PotencialTabla:
                 
 
                 if si:
-                        si.sort(key = lambda h: - len(h.listavar) )
+                        si.sort(key = lambda h: - len(h.listvar) )
                         
                         p = si.pop()
                         self.listap.remove(p)
@@ -1308,7 +1308,7 @@ class PotencialTabla:
                 si = self.listap.copy()
 
                 if si:
-                        si.sort(key = lambda h: - len(h.listavar) )
+                        si.sort(key = lambda h: - len(h.listvar) )
                         
                         p = nodoTabla([])
                         
@@ -1392,13 +1392,13 @@ class PotencialTabla:
                 for p in self.listap:
             
                 
-                    if var in p.listavar:
+                    if var in p.listvar:
                             si.append(p)
-                            if not encontr and len(p.listavar)<= M:
+                            if not encontr and len(p.listvar)<= M:
                                 encontr = p.checkdetermi(var)
                                 if encontr:
                                     keyp = p
-                                    print("variable determinada ", p.listavar)
+                                    print("variable determinada ", p.listvar)
                                     # sleep(0.5)
                     else:
                             res.listap.append(p)
@@ -1415,7 +1415,7 @@ class PotencialTabla:
                         while si:
 
                             q = si.pop()
-                            if len(set(p.listavar).union(set(q.listavar)))<=L:                    
+                            if len(set(p.listvar).union(set(q.listvar)))<=L:                    
                                 p.combina(q,inplace = True, des=False)
                             else:
                                 p.borra([var], inplace=True)
@@ -1424,7 +1424,7 @@ class PotencialTabla:
                                 
                                     res.listap.append(r)
                                 else:
-                                    print(p.listavar, " trivial")
+                                    print(p.listvar, " trivial")
                                     # sleep(2)
                                 p = q.copia()
                                 print("aproximo")
@@ -1435,7 +1435,7 @@ class PotencialTabla:
                         if not r.trivial():
                                 res.listap.append(r)
                         else:
-                                    print(p.listavar, " trivial")   
+                                    print(p.listvar, " trivial")   
                                     # sleep(2)
                        
                         
@@ -1454,7 +1454,7 @@ class PotencialTabla:
                                 else:
                                     print("trivial 1")
                             else:
-                                if  len(set(keyp.listavar).union(set(q.listavar)))<=L:     
+                                if  len(set(keyp.listvar).union(set(q.listvar)))<=L:     
                                     r = q.combina(keyp,inplace = False, des=False)
                                 else:
                                     r = q.copia()
