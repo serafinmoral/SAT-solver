@@ -15,12 +15,12 @@ class simpleClauses:
         if self.contradict:
             return []
         if not x:
-            self.anula()
+            self.annul()
             self.contradict= True
             self.listclaus.append(set())
             return []
         y = []
-        borr = []
+        lstDel = []
         if len(x) ==1:
             v = x.pop()
             if -v in self.unit:
@@ -30,9 +30,9 @@ class simpleClauses:
                 self.unit.add(v)
                 for cl in self.listclaus:
                     if v in cl:
-                        borr.append(cl)
+                        lstDel.append(cl)
                     if -v in cl:
-                        borr.append(cl)
+                        lstDel.append(cl)
                         cl.discard(-v)
                         y.append(cl)
         else:
@@ -50,12 +50,12 @@ class simpleClauses:
                     if len(x) <= len(cl):
                         claudif = x-cl
                         if not claudif:
-                            borr.append(cl)
+                            lstDel.append(cl)
                         elif len(claudif) == 1:
                             var = claudif.pop()
                             if -var in cl:
                                 cl.discard(-var)
-                                borr.append(cl)
+                                lstDel.append(cl)
                                 y.append(cl)
                     if len(cl) <= len(x):
                         claudif = cl-x
@@ -65,20 +65,20 @@ class simpleClauses:
                             var = claudif.pop()
                             if -var in x:
                                 x.discard(-var)
-                                for cl in borr:
-                                    self.eliminar(cl)
+                                for cl in lstDel:
+                                    self.delete(cl)
                                 self.insert(x)
                                 return []
             nvar = set(map(abs,x))
             self.listvar.update(nvar)
             self.listclaus.append(x)
-        for cl in borr:
-            self.eliminars(cl)
+        for cl in lstDel:
+            self.deletes(cl)
         for cl in y:
             self.insert(cl)
 
 
-    def eliminar(self,x):
+    def delete(self,x):
         if len(x)==1:
             v = x.pop()
             self.unit.discard(v)
@@ -89,50 +89,27 @@ class simpleClauses:
             ValueError
 
             
-    def eliminars(self,x):
+    def deletes(self,x):
         try:
             self.listclaus.remove(x)
         except:
             ValueError
 
             
-    def anula(self):
+    def annul(self):
         self.listclaus.clear()
         self.listvar.clear()
         self.unit.clear()
-
-
-    
-    def simplificaunit(self,v):
-        if -v in self.unit:
-            self.insert(set())
-        if v in self.unit:
-            self.unit.discard(v)
-            self.listvar.discard(abs(v))
-        else:
-            y = []
-            borr = []
-            for cl in self.listclaus:
-                if -v in cl:
-                    borr.append(cl)
-                    cl.discard(-v)
-                    y.append(cl)
-                elif v in cl:
-                    borr.append(cl)
-            for cl in borr:
-                self.eliminars(cl)
-            for cl in y:
-                self.insert(cl)
                         
                 
-    def combina(self,simple):
-        if self.contradict:
-            return
-        neg = set(map(lambda x: -x, simple.unit))
-        if neg.intersection(self.unit):
-            self.insert(set())
-        else:
-            for v in simple.unit:
-                self.insert({v})
-            for cl in simple.listclaus:
-                self.insert(cl)
+    # def combine(self,simple):
+    #     if self.contradict:
+    #         return
+    #     neg = set(map(lambda x: -x, simple.unit))
+    #     if neg.intersection(self.unit):
+    #         self.insert(set())
+    #     else:
+    #         for v in simple.unit:
+    #             self.insert({v})
+    #         for cl in simple.listclaus:
+    #             self.insert(cl)

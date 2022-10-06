@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import networkx as nx    
-from source_files.SimpleClauses import *
-from source_files.ProblemaTrianFactor import *
+from source_files.ClausesSimple import *
+from source_files.ProblemTrianFactor import *
 from time import *
-from source_files.utils import *
+from source_files.Utils import *
 
 
 def openFileCNF(fileCNF):
@@ -113,24 +113,24 @@ def triangulap(pot):
     return (order,clusters,borr,posvar,child,parent) 
     
 
-def main(prob, Previo=True, Mejora=False):
-        prob.inicial.solved = False         
+def main(prob, Prior=True, Upgrade=False):
+        prob.initial.solved = False         
         print("entro en main")
         prob.inicia0()        
         t = varpot()
-        t.createfrompot(prob.pinicial)
+        t.createfrompot(prob.pinitial)
         prob.rela = t         
-        if Mejora:
-            prob.rela.mejoralocal()  
+        if Upgrade:
+            prob.rela.localUpgrade()  
         lista = prob.rela.extraelista()
-        prob.pinicial.listap = lista
-        if Previo:
-            prob.previo()
+        prob.pinitial.listap = lista
+        if Prior:
+            prob.prior()
         if prob.contradict:
             print("problema contradictorio")
         else:
-            t = varpot(prob.Q, prob.Partir)
-            t.createfrompot(prob.pinicial)
+            t = varpot(prob.Q, prob.Split)
+            t.createfrompot(prob.pinitial)
             prob.rela = t
             prob.borradin()
         print("salgo de borrado")
@@ -144,72 +144,72 @@ def main(prob, Previo=True, Mejora=False):
 
 
 def treeWidth(prob):
-    (order,clusters,borr,posvar,child,parent) = triangulap(prob.pinicial)
+    (order,clusters,borr,posvar,child,parent) = triangulap(prob.pinitial)
     sizes = map(len,clusters)
     return(max(sizes))
 
 
-def computetreewidhts(archivolee):
-    archivogenera = "treewidths" + archivolee
-    reader=open(archivolee,"r")
-    writer=open(archivogenera,"w")
+def computetreewidhts(fileCNF):
+    fileResults = "treewidths" + fileCNF
+    reader=open(fileCNF,"r")
+    writer=open(fileResults,"w")
     writer.write("Problema;TreeWidth\n")
-    for linea in reader:
-            linea = linea.rstrip()
-            if len(linea)>0:
-                cadena = ""
-                nombre=linea.strip()
-                print(nombre)     
-                (info, nvar, nclaus) = openFileCNF(nombre)
-                cadena= nombre 
-                prob = problemaTrianFactor(info)
+    for line in reader:
+            line = line.rstrip()
+            if len(line)>0:
+                string = ""
+                name=line.strip()
+                print(name)     
+                (info, nvar, nclaus) = openFileCNF(name)
+                string= name 
+                prob = problemTrianFactor(info)
                 prob.inicia0()                  
                 tw = treeWidth(prob)
-                cadena = cadena + ";" + str(tw) + "\n"
-                writer.write(cadena)
+                string = string + ";" + str(tw) + "\n"
+                writer.write(string)
     writer.close()
     reader.close()
 
 
-def deleting_with_tables(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[True], Partir=[True], archivogenera="salida.csv"):
+def deleting_with_tables(fileCNF, Q=[5,10,15,20,25,30],Upgrade=[False], Prior=[True], Split=[True], fileResults="salida.csv"):
     try:
-        reader=open(archivolee,"r")
-        writer=open(archivogenera,"w")
-        writer.write("Problema;Variable;Claúsulas;Q;MejoraLocal;Previo;PartirVars;TLectura;TBúsqueda;TTotal;SAT\n")
+        reader=open(fileCNF,"r")
+        writer=open(fileResults,"w")
+        writer.write("Problem;Vars;Clauses;Q;LocalUpgrade;Prior;splitVars;TRead;TSearch;TTotal;SAT\n")
         ttotal = 0
-        for linea in reader:
-            linea = linea.rstrip()
-            if len(linea)>0:
-                cadena = ""
-                nombre=linea.strip()
-                print(nombre)     
+        for line in reader:
+            line = line.rstrip()
+            if len(line)>0:
+                string = ""
+                name=line.strip()
+                print(name)     
                 t1 = time()
-                (info, nvar, nclaus) = openFileCNF(nombre)
+                (info, nvar, nclaus) = openFileCNF(name)
                 t2= time()
                 for Qev in Q:
-                    for Mej in Mejora:
-                        for Pre in Previo:
-                            for Part in Partir:
+                    for Mej in Upgrade:
+                        for Pre in Prior:
+                            for Part in Split:
                                 try:
                                     t3 = time()
-                                    cadena= nombre + ";" + str(nvar) + ";" + str(nclaus) + ";" + str(Qev) + ";" + str(Mej) + ";" + str(Pre) + ";" + str(Part) + ";"
-                                    prob = problemaTrianFactor(info,Qin=Qev)
+                                    string= name + ";" + str(nvar) + ";" + str(nclaus) + ";" + str(Qev) + ";" + str(Mej) + ";" + str(Pre) + ";" + str(Part) + ";"
+                                    prob = problemTrianFactor(info,Qin=Qev)
                                     t4 = time()
                                     bolSAT = main(prob, Pre,Mej)
                                     t5 = time()
-                                    print("tiempo lectura ",t2-t1)
-                                    print("tiempo busqueda ",t5-t4)
-                                    print("tiempo TOTAL ",t5-t3+t2-t1)
-                                    cadena =  cadena + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + (";SAT" if bolSAT else ";UNSAT") + "\n"
+                                    print("Read time ",t2-t1)
+                                    print("Search time ",t5-t4)
+                                    print("TOTAL time",t5-t3+t2-t1)
+                                    string =  string + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + (";SAT" if bolSAT else ";UNSAT") + "\n"
                                 except ValueError:
                                     print("ERROR")
                                     t5 = time()
-                                    cadena = cadena + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + "ERROR" + "\n"
+                                    string = string + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + "ERROR" + "\n"
                                 except MemoryError:
                                     print("ERROR de Memoria")
                                     t5 = time()
-                                    cadena = cadena + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + "Memory Error" + "\n"
-                                writer.write(cadena)
+                                    string = string + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + "Memory Error" + "\n"
+                                writer.write(string)
         writer.close()
         reader.close()    
     except ValueError:

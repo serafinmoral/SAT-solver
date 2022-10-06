@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 from xmlrpc.client import boolean
-import source_files.utils as u
+import source_files.Utils as u
 
 import networkx as nx
 import numpy as np
-from source_files.SimpleClauses import * 
+from source_files.ClausesSimple import * 
 from time import *
 import math
 import random
 
-class nodoTabla:
-
-    
+class nodeTable:
     def __init__(self, lista):
         
         self.listvar = lista
@@ -20,26 +18,9 @@ class nodoTabla:
         self.tabla = np.ones( dtype = boolean, shape = t)
     
     def copia(self):
-        result = nodoTabla(self.listvar.copy())
+        result = nodeTable(self.listvar.copy())
         result.tabla = self.tabla.copy()
         return result
-    
-    def extrae2(self,vars):
-        res = []
-        if len(vars)>=2:
-            for v in vars:
-                res.extend(self.extrae2(vars-{v}))
-                res.extend(self.extrae21(v,vars-{v}))
-        return res
-
-    def extrae21(self,v,vars):
-        res = []
-        for w in vars:
-            p = self.borra(list(set(self.listvar) - {v,w}), inplace=False)
-            if not p.trivial():
-                res.append(p)
-        return res
-
 
     def descomponev(self,v):
         res = []
@@ -82,7 +63,7 @@ class nodoTabla:
             self.tabla = nuevatabla
             res = self
         else:
-            res = nodoTabla(self.listvar.copy())
+            res = nodeTable(self.listvar.copy())
             res.tabla = nuevatabla
 
         return res
@@ -202,7 +183,7 @@ class nodoTabla:
         
         vars = set(self.listvar)
         if not vars:
-            return nodoTabla([])
+            return nodeTable([])
         v = vars.pop()
 
         pv = self.borra(list(vars))
@@ -219,16 +200,16 @@ class nodoTabla:
                     h2 = self.extrasimple2(v,vars)
                     return h2
             else:
-                return nodoTabla([])
+                return nodeTable([])
 
-    def mejora(self,q):
+    def upgrade(self,q):
             vars = list(set(q.listvar) - set(self.listvar))
             res = self.combina(q.borra(vars))
             return res
 
     def extrasimple2(self,v1,vars):
         if not vars:
-            return nodoTabla([])
+            return nodeTable([])
         v2 = vars.pop()
 
         pv12 = self.borra(list(vars))
@@ -374,7 +355,7 @@ class nodoTabla:
         x1 = np.sum(t1.tabla)
         return (x0,x1)
 
-    def anula(self):
+    def annul(self):
         self.listvar = []
         self.tabla = False
 
@@ -410,7 +391,7 @@ class PotencialTabla:
             self.listap = []
             self.contradict = False
 
-        def anula(self):
+        def annul(self):
             self.unit = set()
             self.listap = []
             self.contradict = True
@@ -483,7 +464,7 @@ class PotencialTabla:
             self.unit = simple.unit.copy()
             (sets,clusters) = u.createclusters(simple.listclaus)
             for i in range(len(sets)):
-                x = nodoTabla(list(sets[i]))
+                x = nodeTable(list(sets[i]))
                 x.introducelista(clusters[i])
                 self.listap.append(x)
 
@@ -544,7 +525,7 @@ class PotencialTabla:
             if not insertado:
                 self.listap.append(p)
 
-        def previo(self,Q=2):
+        def prior(self,Q=2):
             total = 0
             for K in range(2,Q+1):
                 varb = []
@@ -628,7 +609,7 @@ class PotencialTabla:
                 self.listap.remove(q)
 
                     
-        def mejoralocal(self,M=25,Q=10):
+        def localUpgrade(self,M=25,Q=10):
             for p in self.listap:
                 if len(p.listvar)<=Q:
                     old = np.sum(p.tabla)
@@ -650,7 +631,7 @@ class PotencialTabla:
                                 if len(tvars.union(qv))<=M:
                                     tvars.update(qv)
                                     lista.append(q)
-                    r = nodoTabla([])
+                    r = nodeTable([])
                     for q in lista:
                         r.combina(q,inplace=True)
                     r.borra(list(tvars-set(p.listvar)),inplace=True)
@@ -681,7 +662,7 @@ class PotencialTabla:
         def insertaunit(self,x):
             print("INSERTANDO UNIDAD")
             if -x in self.unit:
-                self.anula()
+                self.annul()
                 return set()
             self.reduce({x}, inplace=True)
             if not self.contradict:
@@ -746,7 +727,7 @@ class PotencialTabla:
         def propagaunits(self,su):
             negu = set(map(lambda x: -x, su))
             if negu.intersection(self.unit):
-                self.anula()
+                self.annul()
                 return 
             else:
                 self.unit.update(su)
@@ -760,7 +741,7 @@ class PotencialTabla:
                         nsu = set(filter(lambda x: abs(x) in inter, su))
                         p.reduce(nsu , inplace = True)
                         if p.contradict():
-                            self.anula()
+                            self.annul()
                             return
                         if p.trivial():
                             borr.append(p)
@@ -780,7 +761,7 @@ class PotencialTabla:
                     return res
                 elif not x in val:
                     res.unit.add(x)
-            t = nodoTabla([])
+            t = nodeTable([])
             for p in self.listap:
                 q = p.reduce(val,inplace = False)
                 t.combina(q, inplace=True)
@@ -805,7 +786,7 @@ class PotencialTabla:
                         if p.trivial():
                             bor.append(p)
                         if p.contradict():
-                            res.anula()
+                            res.annul()
                             return res
                         if len(p.listvar) == 1:
                             if not p.tabla[0]:
@@ -829,7 +810,7 @@ class PotencialTabla:
         def reducenv(self, val, l, inplace = False):
             res = PotencialTabla()
             if -val in self.unit:
-                    res.anula()
+                    res.annul()
                     return res
             res.unit = self.unit-{val}
             for p in self.listap:
@@ -868,7 +849,7 @@ class PotencialTabla:
                 lista.append(actual)
 
             for l in lista:
-                total = nodoTabla([])
+                total = nodeTable([])
                 for p in l:
                     self.listap.remove(p)
                     total.combina(p,inplace= True)
@@ -878,16 +859,6 @@ class PotencialTabla:
                     print(np.sum(p.tabla))
                     print(np.sum( npr.tabla))
  
-        def extrae2(self):
-            for p in self.listap:
-                if len(p.listvar)>2:
-                    res = p.extrae2(set(p.listvar))
-                for q in res:
-                    print("nuevo de dos")
-                    sleep(0.1)
-                    self.listap.append(q)
-
-    
         def simplifica(self,l,M=15):
             bor = []
             uni = set()
@@ -896,7 +867,7 @@ class PotencialTabla:
                     if p.trivial():
                         bor.append(p)
                     elif p.contradict():
-                        self.anula()
+                        self.annul()
                         return
                     else:
                         uni.update(p.calculaunit())
@@ -959,7 +930,7 @@ class PotencialTabla:
                     if p.trivial():
                         bor.append(p)
                     elif p.contradict():
-                        self.anula()
+                        self.annul()
                         return
                     else:
                         uni.update(p.calculaunit())
@@ -973,26 +944,6 @@ class PotencialTabla:
                 self.propagaunits(uni)
             return
 
-        def borrafacil(self,order,M):
-            
-            for var in order:
-                su = self.marginalizacond(var,M)
-                if not su:
-                    break
-                else:
-                    print("borrada ", var)
-
-        def borrafacil2(self,M,order):
-            
-            l = []
-
-
-            for var in order:
-                if var in self.getvars():
-                    l1 = self.marginalizacond2(var,M)
-                    l.extend(l1)
-            return l
-
         def combinafacil(self,order,M):
             
             for var in order:
@@ -1001,44 +952,6 @@ class PotencialTabla:
                     break
                 else:
                     print("borrada 2", var)
-        
-        def combinaincluidos(self):
-            i = 0
-            while i < len(self.listap)-1:
-                j = i+1
-                while j < len(self.listap):
-                    print(i,j)
-                    p = self.listap[i]
-                    q = self.listap[j]
-                    inter = set(p.listvar).intersection(q.listvar)
-                    if inter:
-                        pnoq = list(set(p.listvar) - inter)
-                        qnop = list(set(q.listvar) - inter)
-                        if not qnop:
-                            q.combina(p, inplace = True)
-                        
-                            self.listap.remove(p)
-                            if j == len(self.listap):
-                                i+=1
-                                break
-                            else:
-                                j += 1
-                            
-                        elif not pnoq:
-                            p.combina(q, inplace = True)
-                            self.listap.remove(q)
-                            
-                        else:
-                            r = p.borra(pnoq,inplace = False)
-                            q.combina(r, inplace = True)
-                            r = q.borra(qnop, inplace = False)
-                            p.combina(r, inplace = True)
-
-                            j+=1
-                    else:
-                        j+=1
-                    if j == len(self.listap):
-                            i+=1
 
 
 
@@ -1100,7 +1013,7 @@ class PotencialTabla:
                 elif len(vars) <= M+1:
                         si.sort(key = lambda h: - len(h.listvar) )
                         
-                        p = nodoTabla([])
+                        p = nodeTable([])
 
  
                         
@@ -1112,7 +1025,7 @@ class PotencialTabla:
 
                         r = p.borra([var], inplace = False)
                         if r.contradict():
-                            self.anula()
+                            self.annul()
                             return True
                         
                         if r.trivial():
@@ -1165,7 +1078,7 @@ class PotencialTabla:
             
             if exact and lista and not lista[0].listvar:
                 if lista[0].contradict():
-                    self.anula()    
+                    self.annul()    
                     return(True,lista)
             for p in lista:
                 self.listap.append(p)     
@@ -1201,7 +1114,7 @@ class PotencialTabla:
                 if len(vars) <= M:
                         si.sort(key = lambda h: - len(h.listvar) )
                         
-                        p = nodoTabla([])
+                        p = nodeTable([])
 
  
                         
@@ -1213,7 +1126,7 @@ class PotencialTabla:
 
 
                         if p.contradict():
-                            self.anula()
+                            self.annul()
                             return True
                         
                         self.listap.append(p)
@@ -1310,7 +1223,7 @@ class PotencialTabla:
                 if si:
                         si.sort(key = lambda h: - len(h.listvar) )
                         
-                        p = nodoTabla([])
+                        p = nodeTable([])
                         
  
                         
@@ -1335,11 +1248,11 @@ class PotencialTabla:
 
 
         def atabla(self,un):
-            res = nodoTabla([])
+            res = nodeTable([])
             for p in self.listap:
                 res.combina(p, inplace=True)
             for x in un:
-                parcial = nodoTabla([abs(x)])
+                parcial = nodeTable([abs(x)])
                 if x>0:
                     parcial.tabla[0] = False
                 else:
@@ -1409,7 +1322,7 @@ class PotencialTabla:
                         random.shuffle(si)
 
                         
-                        p = nodoTabla([])
+                        p = nodeTable([])
                         
 
                         while si:

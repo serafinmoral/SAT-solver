@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from source_files.tablaClausulas import *
-from source_files.vartablas import *
-import source_files.ProblemaTrianFactor as pt
+from source_files.ClausesTable import *
+from source_files.TablesVar import *
+import source_files.ProblemTrianFactor as pt
+
 
 def tam(l):
     tot = set()
@@ -11,6 +12,7 @@ def tam(l):
         return len(tot)
     else:
         return 0    
+
 
 def valord(p):
     if not len(p.listvar)==1:
@@ -22,9 +24,10 @@ def valord(p):
         else:
             return -v
 
+
 def contenida(nodo, listanodos):
     if (len(listanodos)>0):
-        nodoaux = nodoTabla([])
+        nodoaux = nodeTable([])
         for x in range(len(listanodos)):
             nodoaux.combina(listanodos[x], inplace=True)
         listaBorra = list(set(nodoaux.listvar)-set(nodo.listvar))
@@ -34,6 +37,7 @@ def contenida(nodo, listanodos):
         return nodoaux.trivial()
     else:
         return False
+
 
 def partev(lista,v):
     bor = []
@@ -55,16 +59,14 @@ def partev(lista,v):
                 # print("descomposicion ", len(p.listvar))
                 # print([len(q.listvar) for q in l])
                 # sleep(1)
-            
     for p in bor:
         lista.remove(p)
     lista.extend(nl)
-
     lista.sort(key = lambda x : len(x.listvar) )
 
 
 def potdev(v):
-    res = nodoTabla([abs(v)])
+    res = nodeTable([abs(v)])
     if v>0:
         res.tabla[0] = False
     else:
@@ -77,6 +79,7 @@ def calculaclusters1(lista,p,var):
     borraincluidos(li)
     return li
 
+
 def calculaclusters2(lista,var):
     li = []
     for p in lista:
@@ -86,11 +89,9 @@ def calculaclusters2(lista,var):
     borraincluidos(li)
     return li
 
-def borraincluidos(lista):
-    
-    lista.sort(key = lambda x : - len(x) )
 
-    
+def borraincluidos(lista):
+    lista.sort(key = lambda x : - len(x) )
     i=0
     while i <len(lista)-1:
         j = i+1
@@ -105,26 +106,21 @@ def borraincluidos(lista):
 
 
 def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
-    
     lista.sort(key = lambda x : - len(x.listvar) )
-
-    
     i=0
     while i <len(lista)-1:
-        
         j = i+1
         while j < len(lista):
             # print("lista, i, j", len(lista), i, j)
             if set(lista[j].listvar) <= set(lista[i].listvar):
                 p = lista[i]
                 q = lista[j]
-                
                 rela.borrarpot(p)
                 if borrar:
                     rela.borrarpot(q)
                 t = p.combina(q)
                 if t.contradict():
-                    rela.anula()
+                    rela.annul()
                     print("contradicion ")
                     return 
                 rela.insertar(t)
@@ -137,35 +133,27 @@ def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
                 if inter:
                     p = lista[i]
                     q = lista[j]
-                    tp = p.mejora(q)
-                    tq = q.mejora(p)
+                    tp = p.upgrade(q)
+                    tq = q.upgrade(p)
                     if tp.contradict() or tq.contradict():
-                        rela.anula()
+                        rela.annul()
                         print("contradicion ")
                         return
-
                     rela.borrarpot(p)
                     rela.borrarpot(q)
                     lista[i] = tp
                     lista[j] = tq
                     rela.insertar(tp)
                     rela.insertar(tq)
-                
-
                 j+=1
-        
         i+=1
     lista.reverse()
-
+    
+    
 def agrupatam(lista):
-    
     lista.sort(key = lambda x : - len(x.listvar) )
-
-    
-
     i=0
     while i <len(lista)-1:
-        
         j = i+1
         while j < len(lista):
             # print("lista, i, j", len(lista), i, j)
@@ -174,25 +162,16 @@ def agrupatam(lista):
             if s1 <= s2 or ((len(s1) == len(s2) and (len(s1-s2) == 1))):
                 p = lista[i]
                 q = lista[j]
-                
-            
-                
                 t = p.combina(q)
                 if t.contradict():
                     print("contradicion ")
                     return 
-                
                 lista[i] = t
                 del lista[j]
-                
-                
-
             else:
                 j+=1
-        
         i+=1
     lista.reverse()
-
 
 
 def createclusters (lista):
@@ -204,10 +183,8 @@ def createclusters (lista):
             if va <= x:
                 encontrado = True
                 break
-            
         if not encontrado:
             listasets.append(va)
-
     i = 0
     j = 1
     while (i<len(listasets)-1):
@@ -227,26 +204,20 @@ def createclusters (lista):
     listclaus = []
     for i in range(len(listasets)):
         listclaus.append([])
-
-
     for cl in lista:
         va = set(map(abs,cl))
         for i in range(len(listasets)):
             if va <= listasets[i]:
                 listclaus[i].append(cl)
                 break
-
     return(listasets,listclaus)
 
 
-
-def marginaliza(lista, var, partirin, M=30, Q=20):
+def marginaliza(lista, var, Split_In, M=30, Q=20):
     if not lista:
         return (True,[],[])
-    if partirin: #EEDM
+    if Split_In:
         partev(lista,var)
-
-   
     res = []
     si = []
     vars = set()
@@ -254,7 +225,6 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
     for p in lista:
         # print(p.listvar)
         if var in p.listvar:
-
             vars.update(p.listvar)
             si.append(p)
             if not deter:
@@ -268,40 +238,31 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
         else:
             # print("warning: variable no en tabla")
             res.append(p)
-
-                                    
-        
     if not si:
-        return (True,res,[nodoTabla([var])])
-    
+        return (True,res,[nodeTable([var])])
     exact = True
-
     if deter:
         print("determinista ")
         vars.discard(var)
-
         listp = [keyp]
         if len(vars) <= Q:
             # print("global ")
-            r = nodoTabla([])
+            r = nodeTable([])
             lc = calculaclusters1(si,keyp,var)
             while si:
                 q = si.pop()
                 r.combina(q,inplace=True)
             r.borra([var],inplace=True)
             if r.contradict():
-                con = nodoTabla([])
-                con.anula()
+                con = nodeTable([])
+                con.annul()
                 print("contradiccion")
                 return (True,[con],[keyp])
-                    
-
             for h in lc:
                 rh = r.borra(list(vars-h)) 
                         
                 if not rh.trivial():
                     res.append(rh)
-                        
         else:
             while si:
                 q = si.pop() 
@@ -311,60 +272,42 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
                     if len(setkey.union(set(q.listvar))) < M+1:
                         r = q.combina(keyp,inplace = False, des = False)
                         r.borra([var],inplace = True)
-
                         if r.contradict():
-                            con = nodoTabla([])
-                            con.anula()
+                            con = nodeTable([])
+                            con.annul()
                             return (True,[con],[])
                         if not r.trivial():
                             res.append(r)
                     else:
                         exact = False
-
     else:
             si.sort(key = lambda h: - len(h.listvar) )
             print("borrada " , var, "metodo 2, n potenciales", len(si))
             if len(si) >= 30:
-                    # print("arupando en tamaño ", len(si))
                     agrupatam(si)
-                    # print(len(si))
-                    # sleep(3)
             lc = calculaclusters2(si,var)
             vars.discard(var)
-
             sizes = 0.0
             for xx in lc:
                 sizes += 2**len(xx)
-
             lista = []
             if 2**(len(vars)-1) <= sizes and len(vars) <=31:
                 print ("global total ")
-                r = nodoTabla([])
-               
+                r = nodeTable([])
                 while si:
                     q = si.pop()
                     r.combina(q,inplace=True)
                 listp = [r.copia()]
-                
-                
-                
-                
                 r.borra([var],inplace=True)
-                
-                
                 if r.contradict():
-                    con = nodoTabla([])
-                    con.anula()
+                    con = nodeTable([])
+                    con.annul()
                     return (True,[con],[])
-
                 if not r.trivial():
                         res.append(r)
-            
             elif len(vars)<= Q:
                 print("global ")
-
-                r = nodoTabla([])
-               
+                r = nodeTable([])
                 while si:
                     q = si.pop()
                     r.combina(q,inplace=True)
@@ -372,14 +315,11 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
                 
                 r.borra([var],inplace=True)
                 if r.contradict():
-                    con = nodoTabla([])
-                    con.anula()
+                    con = nodeTable([])
+                    con.annul()
                     return (True,[con],[])
-                
-
                 for h in lc:
                     rh = r.borra(list(vars-h)) 
-                    
                     if not rh.trivial():
                         res.append(rh)
             else:
@@ -394,7 +334,6 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
                 while si:
                     q = si.pop()
                     # print(q.listvar)
-
                     for p in si2:
                         if len(set(q.listvar).union(set(p.listvar))) >M+1:
                             print( "no exacto")
@@ -402,62 +341,25 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
                         else:
                             r = p.combina(q)
                             r.borra([var], inplace = True)
-
-
                             if r.contradict():
-                                con = nodoTabla([])
-                                con.anula()
-                                r = nodoTabla([var])
+                                con = nodeTable([])
+                                con.annul()
+                                r = nodeTable([var])
                                 r.tabla[0] = False
                                 r.tabla[1] = False
                                 return (True, [con],listp)
-                    
                             if not r.trivial():
-                
-                                res.append(r)
-
-                        
-            
-    # print("termina ")        
+                                res.append(r)      
     return (exact,res,listp)
 
-def topologico(lista):
-    order = []
-    padres = dict()
-    elegidos = set()
-    for x in lista:
-        nl = x.copy()
-        hijo = nl.pop()
-        padres[hijo] = set(nl)
-    while padres:
-        for x in padres:
-            if len(padres[x]- elegidos) == 0:
-                break
-        elegidos.add(x)
-        order.append(x)
-        del padres[x]
-    return order
 
-
-            
-                
-                
 def calculamethod(lista,var):
-
-        
-        
-            
             si = []    
-
             deter = False
             vars = set()
-
             if len(lista)<=2:
                 return 1
-
             for p in lista:
-        
-            
                 if var in p.listvar:
                         vars.update(p.listvar)
                         si.append(p)
@@ -466,124 +368,3 @@ def calculamethod(lista,var):
                             if deter: 
                                 return 1
             return 2              
-                    
-def triangulaconorden(pot,order):
-
-    n = len(order)
-    clusters = []
-    
-    child = []
-    posvar = dict()
-    parent = [-1]*(n+1)
-
-    indexvar = dict()
-    for v in order:
-        indexvar[v] = []
-
-    for i in range(n+1):
-        child.append(set())
-    
-
-    for p in pot.listap:
-        con = set(p.listvar)
-        for v in con:
-            indexvar[v].append(con)
-    for v in pot.unit:
-        indexvar[abs(v)].append({abs(v)})
-
-    i=0
-    for nnodo in order:
-        lista = indexvar[nnodo]
-        cluster = set()
-        for y in lista:
-            cluster.update(y)
-        clusters.append(cluster)
-        posvar[nnodo] = i
-        # print( i, cluster)  #EDM
-        i+=1
-        clustersin = cluster-{nnodo}
-
-        for y in clustersin:
-            indexvar[y] = list(filter( lambda h: nnodo not in h  ,indexvar[y] ))
-            indexvar[y].append(clustersin)
-           
-        
-
-
-
-
-    clusters.append(set())
-
-
-    for i in range(n):
-            con = clusters[i]
-            cons = con - {order[i]}
-            if not cons:
-                parent[i] = n
-                child[n].add(i)
-            else:
-                pos = min(map(lambda h: posvar[h], cons))
-                parent[i] = pos
-                child[pos].add(i)
-
-
-
-        
-            
-
-        
-       
-
-            
-
-    # print(order)
-    return (clusters,posvar,child,parent)     
-
-def leeficheroUAI(Archivo):
-    lista = list()
-    listadatos = list()
-    setevid = set()
-    archivo=""
-    contarClaus=0
-    reader=open(Archivo,"r") 
-    reader.readline()
-    reader.readline()
-    reader.readline()
-    numFactor = int(reader.readline())
-    for i in range(numFactor):
-        cadena = reader.readline()
-        nodoAdd = nodoTabla([int(i)+1 for i in cadena.split()[1:]])
-        lista.append(nodoAdd)
-    
-    for l in lista:
-        reader.readline()
-        lee=int(int(reader.readline())/2)
-        lvars=l.listvar
-        datos = np.array([])
-        for x in range(lee):
-            datos=np.append(datos,list(map(float,reader.readline().split())))
-        l.tabla=(datos!=0.).reshape((2,)*len(l.listvar))
-        npdatos = datos.reshape((2,)*len(l.listvar))
-        
-        l.tabla = npdatos
-      
-    
-    setevid = leeArchivoEvid(Archivo+".evid")
-    return (lista, setevid)
-
-
-def leeArchivoEvid(Archivo):
-    conjEvid=set()
-    reader=open(Archivo,"r")
-    lunitario=list(map(int,reader.readline().split()))
-    for x in range(1,len(lunitario),2):
-        conjEvid.add((lunitario[x]+1)*(-1 if lunitario[x+1]==0 else 1))
-    return conjEvid
-
-
-def construyeredbay(listap,evi):
-    res = pt.problemaTrianFactor()
-    res.toriginalfl= listap
-    
-    res.evid = evi
-    return res
