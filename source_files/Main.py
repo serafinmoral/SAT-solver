@@ -116,7 +116,7 @@ def triangulap(pot):
 def main(prob, Prior=True, Upgrade=False):
         prob.initial.solved = False         
         print("entro en main")
-        prob.inicia0()        
+        prob.start0()        
         t = varpot()
         t.createfrompot(prob.pinitial)
         prob.rela = t         
@@ -132,11 +132,11 @@ def main(prob, Prior=True, Upgrade=False):
             t = varpot(prob.Q, prob.Split)
             t.createfrompot(prob.pinitial)
             prob.rela = t
-            prob.borradin()
+            prob.deletein()
         print("salgo de borrado")
         if not prob.contradict:
             prob.sol = prob.findsol()
-            prob.compruebaSol()
+            prob.checkSol()
             return True
         else:
             print(" problema contradictorio ")
@@ -163,7 +163,7 @@ def computetreewidhts(fileCNF):
                 (info, nvar, nclaus) = openFileCNF(name)
                 string= name 
                 prob = problemTrianFactor(info)
-                prob.inicia0()                  
+                prob.start0()                  
                 tw = treeWidth(prob)
                 string = string + ";" + str(tw) + "\n"
                 writer.write(string)

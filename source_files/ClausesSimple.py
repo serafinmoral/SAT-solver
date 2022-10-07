@@ -11,6 +11,7 @@ class simpleClauses:
          self.unit = set()
          self.listclausOriginal = []
          
+         
     def insert(self,x, test=True):
         if self.contradict:
             return []

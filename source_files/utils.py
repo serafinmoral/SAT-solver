@@ -19,24 +19,24 @@ def valord(p):
         print("llamada impropia")
     else:
         v = p.listvar[0]
-        if not p.tabla[0]:
+        if not p.table[0]:
             return v
         else:
             return -v
 
 
-def contenida(nodo, listanodos):
-    if (len(listanodos)>0):
-        nodoaux = nodeTable([])
-        for x in range(len(listanodos)):
-            nodoaux.combina(listanodos[x], inplace=True)
-        listaBorra = list(set(nodoaux.listvar)-set(nodo.listvar))
-        nodoaux.borra(listaBorra, inplace=True)
-        nodoaux.tabla = np.logical_not(nodoaux.tabla)
-        nodoaux=nodoaux.suma(nodo)
-        return nodoaux.trivial()
-    else:
-        return False
+# def contenida(nodo, nodelist):
+#     if (len(nodelist)>0):
+#         nodoaux = nodeTable([])
+#         for x in range(len(nodelist)):
+#             nodoaux.combine(nodelist[x], inplace=True)
+#         listdelete = list(set(nodoaux.listvar)-set(nodo.listvar))
+#         nodoaux.delete(listdelete, inplace=True)
+#         nodoaux.table = np.logical_not(nodoaux.table)
+#         nodoaux=nodoaux.sum(nodo)
+#         return nodoaux.trivial()
+#     else:
+#         return False
 
 
 def partev(lista,v):
@@ -48,7 +48,7 @@ def partev(lista,v):
             # print("trivial antes ")
             break 
         if v in p.listvar:
-            l = p.descomponev(v)
+            l = p.decomposev(v)
             if len(l)>1:
                 for q in l:
                     if not q.trivial():
@@ -68,15 +68,15 @@ def partev(lista,v):
 def potdev(v):
     res = nodeTable([abs(v)])
     if v>0:
-        res.tabla[0] = False
+        res.table[0] = False
     else:
-        res.tabla[1] = False
+        res.table[1] = False
     return res
 
 
 def calculaclusters1(lista,p,var):
     li = [set(q.listvar).union(p.listvar) - {var} for q in lista]
-    borraincluidos(li)
+    deleteincluded(li)
     return li
 
 
@@ -86,11 +86,11 @@ def calculaclusters2(lista,var):
         s = set(p.listvar)
         for q in lista:
             li.append(s.union(q.listvar)- {var})
-    borraincluidos(li)
+    deleteincluded(li)
     return li
 
 
-def borraincluidos(lista):
+def deleteincluded(lista):
     lista.sort(key = lambda x : - len(x) )
     i=0
     while i <len(lista)-1:
@@ -105,7 +105,7 @@ def borraincluidos(lista):
         i += 1
 
 
-def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
+def orderandcombineincluded(lista,rela, vdelete = True, inter=False):
     lista.sort(key = lambda x : - len(x.listvar) )
     i=0
     while i <len(lista)-1:
@@ -115,17 +115,17 @@ def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
             if set(lista[j].listvar) <= set(lista[i].listvar):
                 p = lista[i]
                 q = lista[j]
-                rela.borrarpot(p)
-                if borrar:
-                    rela.borrarpot(q)
-                t = p.combina(q)
+                rela.deletepot(p)
+                if vdelete:
+                    rela.deletepot(q)
+                t = p.combine(q)
                 if t.contradict():
                     rela.annul()
                     print("contradicion ")
                     return 
-                rela.insertar(t)
+                rela.insert(t)
                 lista[i] = t
-                if borrar:
+                if vdelete:
                     lista.remove(q)
                 else:
                     j +=1
@@ -139,12 +139,12 @@ def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
                         rela.annul()
                         print("contradicion ")
                         return
-                    rela.borrarpot(p)
-                    rela.borrarpot(q)
+                    rela.deletepot(p)
+                    rela.deletepot(q)
                     lista[i] = tp
                     lista[j] = tq
-                    rela.insertar(tp)
-                    rela.insertar(tq)
+                    rela.insert(tp)
+                    rela.insert(tq)
                 j+=1
         i+=1
     lista.reverse()
@@ -162,7 +162,7 @@ def agrupatam(lista):
             if s1 <= s2 or ((len(s1) == len(s2) and (len(s1-s2) == 1))):
                 p = lista[i]
                 q = lista[j]
-                t = p.combina(q)
+                t = p.combine(q)
                 if t.contradict():
                     print("contradicion ")
                     return 
@@ -231,12 +231,12 @@ def marginaliza(lista, var, Split_In, M=30, Q=20):
                 deter = p.checkdetermi(var)
                 if deter: 
                     nv = set()
-                    keyp = p.minimizadep(var,nv)
+                    keyp = p.minimizedep(var,nv)
                     setkey = set(keyp.listvar)
                     # if len(keyp.listvar) < len(p.listvar):
                         # print("minimizo ",len(keyp.listvar) ,  len(p.listvar))
         else:
-            # print("warning: variable no en tabla")
+            # print("warning: variable no en table")
             res.append(p)
     if not si:
         return (True,res,[nodeTable([var])])
@@ -251,15 +251,15 @@ def marginaliza(lista, var, Split_In, M=30, Q=20):
             lc = calculaclusters1(si,keyp,var)
             while si:
                 q = si.pop()
-                r.combina(q,inplace=True)
-            r.borra([var],inplace=True)
+                r.combine(q,inplace=True)
+            r.delete([var],inplace=True)
             if r.contradict():
                 con = nodeTable([])
                 con.annul()
                 print("contradiccion")
                 return (True,[con],[keyp])
             for h in lc:
-                rh = r.borra(list(vars-h)) 
+                rh = r.delete(list(vars-h)) 
                         
                 if not rh.trivial():
                     res.append(rh)
@@ -267,11 +267,11 @@ def marginaliza(lista, var, Split_In, M=30, Q=20):
             while si:
                 q = si.pop() 
                 if q == keyp:
-                    r = q.borra([var],inplace = False)
+                    r = q.delete([var],inplace = False)
                 else:
                     if len(setkey.union(set(q.listvar))) < M+1:
-                        r = q.combina(keyp,inplace = False, des = False)
-                        r.borra([var],inplace = True)
+                        r = q.combine(keyp,inplace = False, des = False)
+                        r.delete([var],inplace = True)
                         if r.contradict():
                             con = nodeTable([])
                             con.annul()
@@ -282,7 +282,7 @@ def marginaliza(lista, var, Split_In, M=30, Q=20):
                         exact = False
     else:
             si.sort(key = lambda h: - len(h.listvar) )
-            print("borrada " , var, "metodo 2, n potenciales", len(si))
+            print("deleted " , var, "method 2, n potentials", len(si))
             if len(si) >= 30:
                     agrupatam(si)
             lc = calculaclusters2(si,var)
@@ -296,9 +296,9 @@ def marginaliza(lista, var, Split_In, M=30, Q=20):
                 r = nodeTable([])
                 while si:
                     q = si.pop()
-                    r.combina(q,inplace=True)
-                listp = [r.copia()]
-                r.borra([var],inplace=True)
+                    r.combine(q,inplace=True)
+                listp = [r.copyto()]
+                r.delete([var],inplace=True)
                 if r.contradict():
                     con = nodeTable([])
                     con.annul()
@@ -310,16 +310,16 @@ def marginaliza(lista, var, Split_In, M=30, Q=20):
                 r = nodeTable([])
                 while si:
                     q = si.pop()
-                    r.combina(q,inplace=True)
-                listp = [r.copia()]
+                    r.combine(q,inplace=True)
+                listp = [r.copyto()]
                 
-                r.borra([var],inplace=True)
+                r.delete([var],inplace=True)
                 if r.contradict():
                     con = nodeTable([])
                     con.annul()
                     return (True,[con],[])
                 for h in lc:
-                    rh = r.borra(list(vars-h)) 
+                    rh = r.delete(list(vars-h)) 
                     if not rh.trivial():
                         res.append(rh)
             else:
@@ -339,14 +339,14 @@ def marginaliza(lista, var, Split_In, M=30, Q=20):
                             print( "no exacto")
                             exact = False
                         else:
-                            r = p.combina(q)
-                            r.borra([var], inplace = True)
+                            r = p.combine(q)
+                            r.delete([var], inplace = True)
                             if r.contradict():
                                 con = nodeTable([])
                                 con.annul()
                                 r = nodeTable([var])
-                                r.tabla[0] = False
-                                r.tabla[1] = False
+                                r.table[0] = False
+                                r.table[1] = False
                                 return (True, [con],listp)
                             if not r.trivial():
                                 res.append(r)      
