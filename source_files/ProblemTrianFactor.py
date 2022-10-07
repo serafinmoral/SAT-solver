@@ -53,8 +53,8 @@ class problemTrianFactor:
             while total >0:
                 total = 0
                 i=0
-                while i < len(self.pinitial.listap):
-                    p = self.pinitial.listap[i]
+                while i < len(self.pinitial.listp):
+                    p = self.pinitial.listp[i]
                     if len(p.listvar) == K:
                         for v in p.listvar:
                                 deter = p.checkdetermi(v)
@@ -76,8 +76,8 @@ class problemTrianFactor:
     def deleted(self,v,p):
         bor = []
         tota = set()
-        for i in range(len(self.pinitial.listap)):
-            q = self.pinitial.listap[i]
+        for i in range(len(self.pinitial.listp)):
+            q = self.pinitial.listp[i]
             if v in q.listvar:
                 if q == p:
                     h = q.delete([v],inplace = False)
@@ -91,9 +91,9 @@ class problemTrianFactor:
                     if h.contradict():
                         self.annul()
                         print("Contradictory")
-                self.pinitial.listap[i] = h
+                self.pinitial.listp[i] = h
         for q in bor:
-            self.pinitial.listap.remove(q)
+            self.pinitial.listp.remove(q)
 
 
     def annul(self):
@@ -118,7 +118,7 @@ class problemTrianFactor:
             else:
                 pos = len(self.order)
             pot = self.lqueue[pos]
-            pot.listap.append(p)
+            pot.listp.append(p)
 
 
     def deletein(self, pre = False):
@@ -127,9 +127,9 @@ class problemTrianFactor:
                 self.annul()
                 return
         if pre:
-            (e,order,new,past)= self.rela.marginalizaset(set(self.order), Q=self.Q,pre = True, order = self.order.copy()) #EDM
+            (e,order,new,past)= self.rela.marginalizeset(set(self.order), Q=self.Q,pre = True, order = self.order.copy()) #EDM
         else:
-            (e,order,new,past)= self.rela.marginalizaset(self.pinitial.getvars(), Q=self.Q,pre = False) #EDM
+            (e,order,new,past)= self.rela.marginalizeset(self.pinitial.getvars(), Q=self.Q,pre = False) #EDM
         self.contradict =  self.rela.contradict
         if not pre:
             self.order = self.order +  order
@@ -157,7 +157,7 @@ class problemTrianFactor:
                 self.initial.contradict=True
                 print("Contradiction before normalizing ")
                 break
-            potn = pot.marginaliza(var)
+            potn = pot.marginalize(var)
             print("Marginalize end")
             pos = self.parent[i]
             poti = self.lqueue[pos]
@@ -168,7 +168,7 @@ class problemTrianFactor:
     def insert(self,pot):
         for x in pot.unit:
                 self.insertunit(x)
-        for p in pot.listap:
+        for p in pot.listp:
                 self.insertqueuepot(p)
        
 

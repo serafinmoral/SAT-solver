@@ -71,15 +71,15 @@ class varpot:
             elif -v in self.unit:
                 res.annul()
             elif v in self.table:
-                lista = res.get(v)
+                list_ = res.get(v)
                 res.deletev(v)
-                for p in lista:
+                for p in list_:
                     q = p.reduce([v],inplace = False)
                     res.insert(q)
             elif -v in self.table:
-                lista = res.get(-v)
+                list_ = res.get(-v)
                 res.deletev(-v)
-                for p in lista:
+                for p in list_:
                     q = p.reduce([v],inplace = False)
                     res.insert(q)
             return res
@@ -101,7 +101,7 @@ class varpot:
                 self.insert(p)
         
 
-        def createfromlista(self,l):
+        def createfromlist(self,l):
             for p in l:
                 self.insert(p)
 
@@ -130,32 +130,6 @@ class varpot:
                     self.deletepot(p)
                 del self.table[v]
 
-
-        def siguiente(self):
-            if self.unit:
-                x = self.unit.pop()
-                self.unit.add(x)
-                return abs(x)
-            miv = min(self.table,key = lambda x: len(self.table.get(x)))
-            mav = max(self.table,key = lambda x: len(self.table.get(x)))
-            # print(miv,mav,len(self.table.get(miv)),len(self.table.get(mav)))
-            if len(self.table.get(miv)) == 1:
-                return (miv)
-            miv = min(self.table,key = lambda x: tam(self.table.get(x)))
-            mav = max(self.table,key = lambda x: tam(self.table.get(x)))
-            # print (miv,mav,tam(self.table.get(miv)),tam(self.table.get(mav)))
-            return miv
-
-
-        def getmax(self):
-            if not self.table and self.unit:
-                x = self.unit.pop()
-                self.unit.add(x)
-                return abs(x)
-            else:
-                mav = max(self.table,key = lambda x: len(self.table.get(x)))
-                return mav
-
         
         def combine(self,rela, inplace=True):
             res = self if inplace else  self.copyto()
@@ -168,24 +142,24 @@ class varpot:
             return res
 
 
-        def marginaliza(self,var,M = 30, Q=20):
-            lista = []
+        def marginalize(self,var,M = 30, Q=20):
+            list_ = []
             if self.contradict:
                     print("contradiction ")
-                    return (True,lista,[])
+                    return (True,list_,[])
             if var in  self.unit:
                     self.unit.discard(var)
-                    return (True,lista,[u.potdev(var)])
+                    return (True,list_,[u.potdev(var)])
             elif -var in self.unit:
                     self.unit.discard(-var) 
-                    return (True,lista,[u.potdev(-var)])
-            (exact,lista,listaconvar) = u.marginaliza(self.get(var).copy(),var,self.split,M,Q)
-            if exact and lista and not lista[0].listvar:
-                if lista[0].contradict():
+                    return (True,list_,[u.potdev(-var)])
+            (exact,list_,listwithvar) = u.marginalize(self.get(var).copy(),var,self.split,M,Q)
+            if exact and list_ and not list_[0].listvar:
+                if list_[0].contradict():
                     print ("contradict")
                     self.annul()    
-                    return(True,lista,listaconvar)
-            for p in lista:
+                    return(True,list_,listwithvar)
+            for p in list_:
                 if p.contradict():
                     print ("contradict")
                     self.annul()
@@ -193,39 +167,17 @@ class varpot:
                     # print(p.listvar)
                     self.insert(p)     
             self.deletev(var)
-            return (exact,lista,listaconvar)
+            return (exact,list_,listwithvar)
 
 
-        def marginalizae(self,var,M = 30, Q=20):
-            lista = []
-            if self.contradict:
-                    return (True,lista,[])
-            if var in  self.unit:
-                    self.unit.discard(var)
-                    return (True,lista,[u.potdev(var)])
-            elif -var in self.unit:
-                    self.unit.discard(-var) 
-                    return (True,lista,[u.potdev(-var)])
-            (exact,lista,listaconvar) = u.marginaliza(self.get(var).copy(),var,self.split,M,Q) #EEDM
-            if exact and lista and not lista[0].listvar:
-                if lista[0].contradict():
-                    self.annul()    
-                    return(True,lista,listaconvar)
-            if exact:
-                for p in lista:
-                    self.insert(p)     
-                self.deletev(var)
-            return (exact,lista,listaconvar)
-
-
-        def marginalizaset(self,vars,M = 30, Q=20, ver = True, inplace = True, pre = False, order = []):
+        def marginalizeset(self,vars,M = 30, Q=20, ver = True, inplace = True, pre = False, order = []):
             if not pre:
                 vars.intersection_update(self.getvars())
             if inplace:
                 if not pre:
                     order = []
-                listan = []
-                listaq = []
+                listn = []
+                listq = []
                 new = []
                 if pre:
                     nvars = [x for x in order if x in vars]
@@ -236,55 +188,55 @@ class varpot:
                     if pre:
                         var = vars.pop()
                     else:
-                        var = self.siguientep(vars)
+                        var = self.nextp(vars)
                     tama = tam(self.table.get(var))
-                    lista = self.get(var)
+                    list_ = self.get(var)
                     if not pre:
                         pos = vars.copy()
                         dif = 0
                         while pos and dif <=2:
-                            met = calculamethod(lista,var)
+                            met = calculamethod(list_,var)
                             if met == 1:
                                 break
                             else:
                                 if not pre:
                                     pos.discard(var)
                                 if pos:
-                                    var = self.siguientep(pos)
-                                    lista =self.get(var)
+                                    var = self.nextp(pos)
+                                    list_ =self.get(var)
                                     dif = tam(self.table.get(var))- tama
                         if met==2:
-                            var = self.siguientep(vars)
-                            lista = self.get(var)
-                    u.orderandcombineincluded(lista,self, vdelete = True, inter=False)
+                            var = self.nextp(vars)
+                            list_ = self.get(var)
+                    u.orderandcombineincluded(list_,self, vdelete = True, inter=False)
                     if ver:
                         print("var", var, "quedan ", len(vars))
                     if not pre:
                         vars.discard(var)
-                    (exac,new,past) = self.marginaliza(var,M,Q)
+                    (exac,new,past) = self.marginalize(var,M,Q)
                     if not exac:
                         print("inaccurate deletion" )
                         e = False
                     if not pre:
                         order.append(var)
-                    listan.append(new)
-                    listaq.append(past)
+                    listn.append(new)
+                    listq.append(past)
                     if not self.contradict:
                         u.orderandcombineincluded(new,self, vdelete=True)
-                return(e,order,new,listaq)
+                return(e,order,new,listq)
             else:
                 res = self.copyto()
-                res.marginalizaset(vars,M , Q, ver , inplace = True)
+                res.marginalizeset(vars,M , Q, ver , inplace = True)
                 return res
 
         
-        def extraelista(self):
-            lista = []
+        def extractlist(self):
+            list_ = []
             for v in self.table:
                 for p in self.table[v]:
                     if min(p.listvar) == v:
-                        lista.append(p)
-            return lista
+                        list_.append(p)
+            return list_
 
 
         def atable(self):
@@ -299,26 +251,26 @@ class varpot:
 
 
         def localUpgrade(self,M=25,Q=20,N=2):
-            listp = self.extraelista()        
+            listp = self.extractlist()        
             for p in listp:                
                     old = np.sum(p.table)
                     vars = set(p.listvar)
                     nvars = vars.copy()
                     tvars = set(p.listvar)
-                    lista = []
+                    list_ = []
                     for i in range(N):
                         for v in nvars:
                             for q in self.table[v]:
-                                if not q in lista:
-                                    lista.append(q)
+                                if not q in list_:
+                                    list_.append(q)
                                     qv = set(q.listvar)
                                     tvars.update(qv)
                             nvars = tvars-vars
                             vars = tvars.copy()
                     r = varpot()
-                    r.createfromlista(lista)
-                    r.marginalizaset(tvars-set(p.listvar),M,self.Q, ver=False) #EDM
-                    nl = r.extraelista()
+                    r.createfromlist(list_)
+                    r.marginalizeset(tvars-set(p.listvar),M,self.Q, ver=False) #EDM
+                    nl = r.extractlist()
                     lk = nodeTable([])
                     for q in nl:
                         lk.combine(q,inplace=True)
@@ -329,7 +281,7 @@ class varpot:
                         self.insert(lk)
 
 
-        def siguientep(self,pos):
+        def nextp(self,pos):
             if self.unit:
                 varu = set(map(abs,self.unit))
                 if varu.intersection(pos):

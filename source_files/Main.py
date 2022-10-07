@@ -46,7 +46,7 @@ def triangulap(pot):
     posvar = dict()
     total = set()
     dvar = dict()
-    for p in pot.listap:
+    for p in pot.listp:
         con = set(p.listvar)
         print(con)
         total.update(con)
@@ -122,8 +122,8 @@ def main(prob, Prior=True, Upgrade=False):
         prob.rela = t         
         if Upgrade:
             prob.rela.localUpgrade()  
-        lista = prob.rela.extraelista()
-        prob.pinitial.listap = lista
+        list_ = prob.rela.extractlist()
+        prob.pinitial.listp = list_
         if Prior:
             prob.prior()
         if prob.contradict:
