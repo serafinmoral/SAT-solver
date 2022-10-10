@@ -149,33 +149,11 @@ def treeWidth(prob):
     return(max(sizes))
 
 
-def computetreewidhts(fileCNF):
-    fileResults = "treewidths" + fileCNF
-    reader=open(fileCNF,"r")
-    writer=open(fileResults,"w")
-    writer.write("Problema;TreeWidth\n")
-    for line in reader:
-            line = line.rstrip()
-            if len(line)>0:
-                string = ""
-                name=line.strip()
-                print(name)     
-                (info, nvar, nclaus) = openFileCNF(name)
-                string= name 
-                prob = problemTrianFactor(info)
-                prob.start0()                  
-                tw = treeWidth(prob)
-                string = string + ";" + str(tw) + "\n"
-                writer.write(string)
-    writer.close()
-    reader.close()
-
-
 def deleting_with_tables(fileCNF, Q=[5,10,15,20,25,30],Upgrade=[False], Prior=[True], Split=[True], fileResults="salida.csv"):
     try:
         reader=open(fileCNF,"r")
         writer=open(fileResults,"w")
-        writer.write("Problem;Vars;Clauses;Q;LocalUpgrade;Prior;splitVars;TRead;TSearch;TTotal;SAT\n")
+        writer.write("Problem;Vars;Clauses;TreeWidth;Q;LocalUpgrade;Prior;splitVars;TRead;TSearch;TTotal;SAT\n")
         ttotal = 0
         for line in reader:
             line = line.rstrip()
@@ -186,13 +164,16 @@ def deleting_with_tables(fileCNF, Q=[5,10,15,20,25,30],Upgrade=[False], Prior=[T
                 t1 = time()
                 (info, nvar, nclaus) = openFileCNF(name)
                 t2= time()
+                probtw = problemTrianFactor(info)
+                probtw.start0()                  
+                tw = treeWidth(probtw)
                 for Qev in Q:
                     for Mej in Upgrade:
                         for Pre in Prior:
                             for Part in Split:
                                 try:
                                     t3 = time()
-                                    string= name + ";" + str(nvar) + ";" + str(nclaus) + ";" + str(Qev) + ";" + str(Mej) + ";" + str(Pre) + ";" + str(Part) + ";"
+                                    string= name + ";" + str(nvar) + ";" + str(nclaus) + ";" + str(tw) + ";" + str(Qev) + ";" + str(Mej) + ";" + str(Pre) + ";" + str(Part) + ";"
                                     prob = problemTrianFactor(info,Qin=Qev)
                                     t4 = time()
                                     bolSAT = main(prob, Pre,Mej)
@@ -214,5 +195,3 @@ def deleting_with_tables(fileCNF, Q=[5,10,15,20,25,30],Upgrade=[False], Prior=[T
         reader.close()    
     except ValueError:
         print("Error")
-# computetreewidhts("ListaCNF_Experimento.txt")
-# deleting_with_tables("../data_In_Out/entrada",[5,10,15,20,25],[False],[False],[False,True],"../data_In_Out/prueba05.txt")

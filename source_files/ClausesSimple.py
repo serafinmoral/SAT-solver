@@ -101,16 +101,3 @@ class simpleClauses:
         self.listclaus.clear()
         self.listvar.clear()
         self.unit.clear()
-                        
-                
-    # def combine(self,simple):
-    #     if self.contradict:
-    #         return
-    #     neg = set(map(lambda x: -x, simple.unit))
-    #     if neg.intersection(self.unit):
-    #         self.insert(set())
-    #     else:
-    #         for v in simple.unit:
-    #             self.insert({v})
-    #         for cl in simple.listclaus:
-    #             self.insert(cl)
