@@ -4,7 +4,7 @@ from source_files.TablesVar import *
 import source_files.ProblemTrianFactor as pt
 
 
-def tam(l):
+def size(l):
     tot = set()
     if l:
         for h in l:
@@ -16,7 +16,7 @@ def tam(l):
 
 def valord(p):
     if not len(p.listvar)==1:
-        print("llamada impropia")
+        print("improper call")
     else:
         v = p.listvar[0]
         if not p.table[0]:
@@ -91,7 +91,6 @@ def orderandcombineincluded(list_,rela, vdelete = True, inter=False):
     while i <len(list_)-1:
         j = i+1
         while j < len(list_):
-            # print("list_, i, j", len(list_), i, j)
             if set(list_[j].listvar) <= set(list_[i].listvar):
                 p = list_[i]
                 q = list_[j]
@@ -101,7 +100,7 @@ def orderandcombineincluded(list_,rela, vdelete = True, inter=False):
                 t = p.combine(q)
                 if t.contradict():
                     rela.annul()
-                    print("contradicion ")
+                    print("contradiction ")
                     return 
                 rela.insert(t)
                 list_[i] = t
@@ -117,7 +116,7 @@ def orderandcombineincluded(list_,rela, vdelete = True, inter=False):
                     tq = q.upgrade(p)
                     if tp.contradict() or tq.contradict():
                         rela.annul()
-                        print("contradicion ")
+                        print("contradiction ")
                         return
                     rela.deletepot(p)
                     rela.deletepot(q)
@@ -130,13 +129,12 @@ def orderandcombineincluded(list_,rela, vdelete = True, inter=False):
     list_.reverse()
     
     
-def agrupatam(list_):
+def groupsize(list_):
     list_.sort(key = lambda x : - len(x.listvar) )
     i=0
     while i <len(list_)-1:
         j = i+1
         while j < len(list_):
-            # print("list_, i, j", len(list_), i, j)
             s1 = set(list_[j].listvar)
             s2 = set(list_[i].listvar)
             if s1 <= s2 or ((len(s1) == len(s2) and (len(s1-s2) == 1))):
@@ -144,7 +142,7 @@ def agrupatam(list_):
                 q = list_[j]
                 t = p.combine(q)
                 if t.contradict():
-                    print("contradicion ")
+                    print("contradiction ")
                     return 
                 list_[i] = t
                 del list_[j]
@@ -193,7 +191,7 @@ def createclusters (list_):
     return(listsets,listclaus)
 
 
-def marginalize(list_, var, Split_In, M=30, Q=20):
+def marginalize(list_, var, Split_In, M=30, Q=20, see_messMar=True):
     if not list_:
         return (True,[],[])
     if Split_In:
@@ -203,7 +201,6 @@ def marginalize(list_, var, Split_In, M=30, Q=20):
     vars = set()
     deter = False
     for p in list_:
-        # print(p.listvar)
         if var in p.listvar:
             vars.update(p.listvar)
             si.append(p)
@@ -220,11 +217,10 @@ def marginalize(list_, var, Split_In, M=30, Q=20):
         return (True,res,[nodeTable([var])])
     exact = True
     if deter:
-        print("determinista ")
+        if (see_messMar): print("\t\t\tdeterminista ")
         vars.discard(var)
         listp = [keyp]
         if len(vars) <= Q:
-            # print("global ")
             r = nodeTable([])
             lc = calculaclusters1(si,keyp,var)
             while si:
@@ -234,7 +230,7 @@ def marginalize(list_, var, Split_In, M=30, Q=20):
             if r.contradict():
                 con = nodeTable([])
                 con.annul()
-                print("contradiccion")
+                print("contradiction")
                 return (True,[con],[keyp])
             for h in lc:
                 rh = r.delete(list(vars-h)) 
@@ -260,9 +256,9 @@ def marginalize(list_, var, Split_In, M=30, Q=20):
                         exact = False
     else:
             si.sort(key = lambda h: - len(h.listvar) )
-            print("deleted " , var, "method 2, n potentials", len(si))
+            # if (see_messMar): print("deleted " , var, "method 2, n potentials", len(si))
             if len(si) >= 30:
-                    agrupatam(si)
+                    groupsize(si)
             lc = calculaclusters2(si,var)
             vars.discard(var)
             sizes = 0.0
@@ -270,7 +266,7 @@ def marginalize(list_, var, Split_In, M=30, Q=20):
                 sizes += 2**len(xx)
             list_ = []
             if 2**(len(vars)-1) <= sizes and len(vars) <=31:
-                print ("global total ")
+                if (see_messMar): print ("\t\t\tglobal total ")
                 r = nodeTable([])
                 while si:
                     q = si.pop()
@@ -284,7 +280,7 @@ def marginalize(list_, var, Split_In, M=30, Q=20):
                 if not r.trivial():
                         res.append(r)
             elif len(vars)<= Q:
-                print("global ")
+                if (see_messMar): print("\t\t\tglobal ")
                 r = nodeTable([])
                 while si:
                     q = si.pop()
@@ -301,15 +297,15 @@ def marginalize(list_, var, Split_In, M=30, Q=20):
                     if not rh.trivial():
                         res.append(rh)
             else:
-                print("no global", len(vars), vars)
+                # if (see_messMar): print("\t\t\tno global", len(vars), vars)
+                if (see_messMar): print("\t\t\tno global")
                 si2 = si.copy()
                 listp = si2
                 while si:
                     q = si.pop()
-                    # print(q.listvar)
                     for p in si2:
                         if len(set(q.listvar).union(set(p.listvar))) >M+1:
-                            print( "no exacto")
+                            if (see_messMar): print( "\t\t\tno exacto")
                             exact = False
                         else:
                             r = p.combine(q)

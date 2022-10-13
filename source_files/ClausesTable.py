@@ -256,22 +256,12 @@ class PotentialTable:
                 return True
             else:
                 return False
-
-
-        def prints(self):
-            print("unit: ", self.unit)
-            print("tables ")
-            print("contradiccion ", self.contradict)
-            for x in self.listp:
-                print("vars" , x.listvar)
-                print(x.table)
         
 
         def copyto(self):
             res = PotentialTable()
             res.unit = self.unit.copy()
             for p in self.listp:
-                print(p)
                 res.listp.append(p.copyto())
             return res
 
@@ -341,12 +331,8 @@ class PotentialTable:
                     p.combine(r,inplace=True)
                     ns = np.sum(p.table)
 
-                    if (ns < old):
-                        print("mejopra", ns, old,len(p.listvar))
-
 
         def insertunit(self,x):
-            print("INSERTING UNIT")
             if -x in self.unit:
                 self.annul()
                 return set()

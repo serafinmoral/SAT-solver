@@ -4,7 +4,7 @@ from source_files.ClausesSimple import *
 from source_files.ProblemTrianFactor import *
 from time import *
 from source_files.Utils import *
-
+from source_files.TablesVar import *
 
 def openFileCNF(fileCNF):
     reader=open(fileCNF,"r") 
@@ -13,10 +13,8 @@ def openFileCNF(fileCNF):
         line = reader.readline()
     line.strip()
     listaux = line.split()
-    print(listaux)
     nvar = int(listaux[2])
     nclaus = int(listaux[3])
-    print(nvar)
     while line[0]=='c':
         line = reader.readline()
     infor = simpleClauses()
@@ -31,8 +29,8 @@ def openFileCNF(fileCNF):
             infor.listclausOriginal.append(clause.copy())
             if not nc.intersection(clause):
                 infor.insert(clause, test = False)
-            else:
-               print("trivial ", clause)
+            # else:
+            #    print("trivial ", clause)
             if infor.contradict:
                 print("reading contradiction")    
     return infor, nvar, nclaus
@@ -48,7 +46,6 @@ def triangulap(pot):
     dvar = dict()
     for p in pot.listp:
         con = set(p.listvar)
-        print(con)
         total.update(con)
         for v in con:
             if v in dvar:
@@ -67,7 +64,6 @@ def triangulap(pot):
         clus = {nnode}
         clusters.append(clus)
         posvar[nnode] = i
-        print( i, clus) 
         i+=1
     value = dict()
     totvar = dict()
@@ -85,7 +81,6 @@ def triangulap(pot):
             clus.update(x)
         clusters.append(clus)
         posvar[nnode] = i
-        print( i, clus)
         i+=1
         clustersin = clus-{nnode}
         for y in clustersin:
@@ -113,11 +108,11 @@ def triangulap(pot):
     return (order,clusters,borr,posvar,child,parent) 
     
 
-def main(prob, Prior=True, Upgrade=False):
+def main(prob, Prior=True, Upgrade=False, see_messages=False):
         prob.initial.solved = False         
-        print("entro en main")
         prob.start0()        
-        t = varpot()
+        print(see_messages)
+        t = varpot(see_mess=see_messages)
         t.createfrompot(prob.pinitial)
         prob.rela = t         
         if Upgrade:
@@ -129,11 +124,10 @@ def main(prob, Prior=True, Upgrade=False):
         if prob.contradict:
             print("problema contradictorio")
         else:
-            t = varpot(prob.Q, prob.Split)
+            t = varpot(prob.Q, prob.Split, see_mess=see_messages)
             t.createfrompot(prob.pinitial)
             prob.rela = t
             prob.deletein()
-        print("salgo de borrado")
         if not prob.contradict:
             prob.sol = prob.findsol()
             prob.checkSol()
@@ -149,7 +143,7 @@ def treeWidth(prob):
     return(max(sizes))
 
 
-def deleting_with_tables(fileCNF, Q=[5,10,15,20,25,30],Upgrade=[False], Prior=[True], Split=[True], fileResults="salida.csv"):
+def deleting_with_tables(fileCNF, Q=[5,10,15,20,25,30],Upgrade=[False], Prior=[True], Split=[True], Smessages=False,fileResults="salida.csv"):
     try:
         reader=open(fileCNF,"r")
         writer=open(fileResults,"w")
@@ -159,10 +153,10 @@ def deleting_with_tables(fileCNF, Q=[5,10,15,20,25,30],Upgrade=[False], Prior=[T
             line = line.rstrip()
             if len(line)>0:
                 string = ""
-                name=line.strip()
-                print(name)     
+                name=line.strip()   
                 t1 = time()
                 (info, nvar, nclaus) = openFileCNF(name)
+                print("File:" + name + "; Vars:" + str(nvar) + "; Clauses:" + str(nclaus))
                 t2= time()
                 probtw = problemTrianFactor(info)
                 probtw.start0()                  
@@ -173,14 +167,15 @@ def deleting_with_tables(fileCNF, Q=[5,10,15,20,25,30],Upgrade=[False], Prior=[T
                             for Part in Split:
                                 try:
                                     t3 = time()
+                                    print("\tQ:" + str(Qev) + "; Upgrade:" + str(Mej) + "; Prior:" + str(Pre) + "; splitVars:" +str(Part))
                                     string= name + ";" + str(nvar) + ";" + str(nclaus) + ";" + str(tw) + ";" + str(Qev) + ";" + str(Mej) + ";" + str(Pre) + ";" + str(Part) + ";"
-                                    prob = problemTrianFactor(info,Qin=Qev)
+                                    prob = problemTrianFactor(info,Qin=Qev,see_mess=Smessages)
                                     t4 = time()
-                                    bolSAT = main(prob, Pre,Mej)
+                                    bolSAT = main(prob, Pre,Mej,Smessages)
                                     t5 = time()
-                                    print("Read time ",t2-t1)
-                                    print("Search time ",t5-t4)
-                                    print("TOTAL time",t5-t3+t2-t1)
+                                    if (Smessages): print("\tRead time: ",t2-t1)
+                                    if (Smessages):print("\tSearch time: ",t5-t4)
+                                    print("\tTotal time: " + str(t5-t3+t2-t1) + "\n")
                                     string =  string + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + (";SAT" if bolSAT else ";UNSAT") + "\n"
                                 except ValueError:
                                     print("ERROR")

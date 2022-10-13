@@ -4,12 +4,13 @@ from source_files.Utils import *
 
 
 class varpot:
-        def __init__(self, Qin=20, SplitIn=True): 
+        def __init__(self, Qin=20, SplitIn=True, see_mess=True): 
             self.table = dict()
             self.unit = set()
             self.contradict = False
             self.Q = Qin 
-            self.split=SplitIn          
+            self.split=SplitIn
+            self.messages_TP = see_mess
 
 
         def annul(self):
@@ -86,7 +87,7 @@ class varpot:
 
 
         def copyto(self):
-            res = varpot()
+            res = varpot(see_mess=self.messages_TP)
             res.unit = self.unit.copy()
             res.contradict = self.contradict
             for x in self.table.keys():
@@ -153,18 +154,17 @@ class varpot:
             elif -var in self.unit:
                     self.unit.discard(-var) 
                     return (True,list_,[u.potdev(-var)])
-            (exact,list_,listwithvar) = u.marginalize(self.get(var).copy(),var,self.split,M,Q)
+            (exact,list_,listwithvar) = u.marginalize(self.get(var).copy(),var,self.split,M,Q,self.messages_TP)
             if exact and list_ and not list_[0].listvar:
                 if list_[0].contradict():
-                    print ("contradict")
+                    print ("contradiction")
                     self.annul()    
                     return(True,list_,listwithvar)
             for p in list_:
                 if p.contradict():
-                    print ("contradict")
+                    print ("contradiction")
                     self.annul()
                 else:
-                    # print(p.listvar)
                     self.insert(p)     
             self.deletev(var)
             return (exact,list_,listwithvar)
@@ -189,7 +189,7 @@ class varpot:
                         var = vars.pop()
                     else:
                         var = self.nextp(vars)
-                    tama = tam(self.table.get(var))
+                    sizea = size(self.table.get(var))
                     list_ = self.get(var)
                     if not pre:
                         pos = vars.copy()
@@ -204,18 +204,18 @@ class varpot:
                                 if pos:
                                     var = self.nextp(pos)
                                     list_ =self.get(var)
-                                    dif = tam(self.table.get(var))- tama
+                                    dif = size(self.table.get(var))- sizea
                         if met==2:
                             var = self.nextp(vars)
                             list_ = self.get(var)
                     u.orderandcombineincluded(list_,self, vdelete = True, inter=False)
                     if ver:
-                        print("var", var, "quedan ", len(vars))
+                        if (self.messages_TP): print("\t\tvar", var, "quedan ", len(vars))
                     if not pre:
                         vars.discard(var)
                     (exac,new,past) = self.marginalize(var,M,Q)
                     if not exac:
-                        print("inaccurate deletion" )
+                        if (self.messages_TP): print("inaccurate deletion" )
                         e = False
                     if not pre:
                         order.append(var)
@@ -267,16 +267,15 @@ class varpot:
                                     tvars.update(qv)
                             nvars = tvars-vars
                             vars = tvars.copy()
-                    r = varpot()
+                    r = varpot(see_mess=self.messages_TP)
                     r.createfromlist(list_)
-                    r.marginalizeset(tvars-set(p.listvar),M,self.Q, ver=False) #EDM
+                    r.marginalizeset(tvars-set(p.listvar),M,self.Q, ver=False) 
                     nl = r.extractlist()
                     lk = nodeTable([])
                     for q in nl:
                         lk.combine(q,inplace=True)
                     ns = np.sum(lk.table)
                     if (ns < old):
-                        # print("Upgrade", ns, old,len(p.listvar), len(lk.listvar)) #EDM
                         self.deletepot(p)
                         self.insert(lk)
 
@@ -289,13 +288,10 @@ class varpot:
                     return x
             miv = min(pos,key = lambda x: len(self.table.get(x)))
             mav = max(pos,key = lambda x: len(self.table.get(x)))
-            # print(miv,mav,len(self.table.get(miv)),len(self.table.get(mav)))
             if len(self.table.get(miv)) == 1:
-                # print("un solo potencial !!!!!!!!!!!!!!!!")
                 return (miv)
-            miv = min(pos,key = lambda x: tam(self.table.get(x)))
-            mav = max(pos,key = lambda x: tam(self.table.get(x)))
-            # print (miv,mav,tam(self.table.get(miv)),tam(self.table.get(mav)))
+            miv = min(pos,key = lambda x: size(self.table.get(x)))
+            mav = max(pos,key = lambda x: size(self.table.get(x)))
             return miv
 
 

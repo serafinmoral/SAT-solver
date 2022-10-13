@@ -10,11 +10,11 @@ import random as ra
 
 
 class problemTrianFactor:
-    def __init__(self,info=None,M=30, Qin=20, SplitIn=True):
+    def __init__(self,info=None,M=30, Qin=20, SplitIn=True, see_mess=True):
          self.M = M
          self.initial = info
          self.pinitial = PotentialTable()
-         self.rela = varpot(Qin,SplitIn)
+         self.rela = varpot(Qin,SplitIn,see_mess)
          self.order = []
          self.clusters = []
          self.lqueue  = []
@@ -30,6 +30,7 @@ class problemTrianFactor:
          self.toriginalfl = []
          self.Q=Qin
          self.Split=SplitIn
+         self.messages_PTF = see_mess
 
 
     def start0(self):
@@ -67,7 +68,6 @@ class problemTrianFactor:
                                     total += 1
                                     break
                     i+= 1
-                print(total)
         if self.pinitial.contradict:
             self.contradict = True
         return (varb,potb)
@@ -127,16 +127,15 @@ class problemTrianFactor:
                 self.annul()
                 return
         if pre:
-            (e,order,new,past)= self.rela.marginalizeset(set(self.order), Q=self.Q,pre = True, order = self.order.copy()) #EDM
+            (e,order,new,past)= self.rela.marginalizeset(set(self.order), Q=self.Q,pre = True, order = self.order.copy())
         else:
-            (e,order,new,past)= self.rela.marginalizeset(self.pinitial.getvars(), Q=self.Q,pre = False) #EDM
+            (e,order,new,past)= self.rela.marginalizeset(self.pinitial.getvars(), Q=self.Q,pre = False)
         self.contradict =  self.rela.contradict
         if not pre:
             self.order = self.order +  order
         i=0
         if not self.contradict:
             for x in past:
-                # print(i, x) #EDM
                 i+=1
                 y = nodeTable([])
                 for t in x:
@@ -146,23 +145,21 @@ class problemTrianFactor:
             
     
     def delete(self):
-        print(len(self.order))
         for i in range(len(self.order)):
             if self.initial.contradict:
                 break
             var = self.order[i]
-            print("i= ", i, "var = ", self.order[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
             if pot.contradict:
                 self.initial.contradict=True
                 print("Contradiction before normalizing ")
                 break
             potn = pot.marginalize(var)
-            print("Marginalize end")
+            # print("Marginalize end")
             pos = self.parent[i]
             poti = self.lqueue[pos]
             poti.insert(potn)
-            print("combine end")
+            # print("combine end")
 
 
     def insert(self,pot):
@@ -175,13 +172,9 @@ class problemTrianFactor:
     def findsol(self):
         sol = set()
         for i in reversed(range(len(self.order))):
-            print(i)
             table = self.lqueue[i]
             var = self.order[i]
-            print(var)
-            # print(table.listvar,table.table)
             t = table.reduce(list(sol))
-            # print(t.listvar,t.table)
             if len(t.listvar) > 1:
                 for x in t.listvar:
                     if not x == var:
@@ -203,17 +196,17 @@ class problemTrianFactor:
     def checkSol(self):
         aux = 0
         for clau in self.initial.listclausOriginal:
-            print(clau)
+            # if (self.messages_PTF): print(clau)
             aux = aux + 1
             if len(clau.intersection(self.sol))==0:
-                print("Error in clause: ", clau)
+                if (self.messages_PTF): print("\tError in clause: ", clau)
                 return False
-        print("Satisfactorily fulfills solution. Number of clauses validated: ", aux)
+        if (self.messages_PTF): print("\tSatisfactorily fulfills solution. Number of clauses validated: ", aux)
         return True
 
 
     def contradictproblem(self):
-        print("contradiccion")
+        print("Contradiction")
         self.initial.solved = True
         self.initial.contradict = True
 
