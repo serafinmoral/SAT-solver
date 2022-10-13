@@ -7,10 +7,10 @@ _The file that controls the execution of the experiments is "satSolver.py", in w
 ```
 deleting_with_tables(fileCNF[,Q][,Upgrade][,Prior][,Split][,Smessages][,fileResults])
 ```
-_fileCNF: File containing the list of boolean satisfiability problems (SAT), each problem represented in a CNF format file._
-_Q: ._
-_Upgrade: ._
-_Prior: ._
-_Split: ._
-_Smessages: Boolean parameter that indicates whether to display messages of the resolution process performed by the algorithm. Default value: False._
-_fileResults: File in CSV format, with the results of the experiments. The resolution times for each combination of Q, Upgrade, Prior and Split are shown here. The file is saved in the directory "data_In_Out". Default value:"salida.csv"_
+**fileCNF:** File containing the list of boolean satisfiability problems (SAT), each problem represented in a CNF format file.
+**Q:** .
+**Upgrade:** .
+**Prior:** .
+**Split:** .
+**Smessages:** Boolean parameter that indicates whether to display messages of the resolution process performed by the algorithm. Default value: False.
+**fileResults:** File in CSV format, with the results of the experiments. The resolution times for each combination of Q, Upgrade, Prior and Split are shown here. The file is saved in the directory "data_In_Out". Default value:"salida.csv"
