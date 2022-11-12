@@ -32,5 +32,5 @@ _This software was built with the Python programming language, version 3.8, usin
 
 _This library is the product of a doctoral thesis work to solve Boolean satisfiability problems and their variants using the strategies used in graphical models._
 
-* **Efraín Díaz Macías** - *PhD Candidate* - [efraindiaz@uteq.edu.ec](efraindiaz@uteq.edu.ec)
-* **Serafín Moral Callejón** - *Thesis Director* - [smc@decsai.ugr.es](efraindiaz@uteq.edu.ec)
+* **Efraín Díaz Macías** - [efraindiaz@uteq.edu.ec](efraindiaz@uteq.edu.ec)
+* **Serafín Moral Callejón** - [smc@decsai.ugr.es](efraindiaz@uteq.edu.ec)
