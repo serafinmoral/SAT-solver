@@ -4,10 +4,10 @@ Created on 31 Enero 2022
 @author: Serafin
 """
 from statistics import variance
-from utils import *
-from SimpleClausulas import *
+from source_files.utils import *
 from time import *
-from varclausas import *
+from source_files.varclausas import *
+from source_files.SimpleClausulas import *
 import signal
 
 def signal_handler(signum, frame):
@@ -253,8 +253,8 @@ class varclau:
                         if not cl.intersection(cln):
                             trabajo.insertar(cl)
     
-reader=open("list0","r")
-writer=open("output1","w")
+reader=open("data_In_Out/list0","r")
+writer=open("data_In_Out/output1","w")
 writer.write("Problem;Time\n")
 ttotal = 0
 signal.signal(signal.SIGALRM, signal_handler)

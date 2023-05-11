@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from statistics import variance
-from source_files.Utils import *
+from source_files.utils import *
 
 
 class varpot:

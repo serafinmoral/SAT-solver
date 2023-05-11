@@ -5,7 +5,7 @@ from numpy import False_
 from source_files.TablesVar import *
 from source_files.ClausesSimple import *
 from source_files.ClausesTable import *
-from source_files.Utils import *
+from source_files.utils import *
 import random as ra
 
 

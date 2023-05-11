@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from xmlrpc.client import boolean
-import source_files.Utils as u
+import source_files.utils as u
 
 import networkx as nx
 import numpy as np

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import networkx as nx    
-from source_files.ClausesSimple import *
+from ClausesSimple import *
 from source_files.ProblemTrianFactor import *
 from time import *
-from source_files.Utils import *
+from source_files.utils import *
 from source_files.TablesVar import *
 
 def openFileCNF(fileCNF):
