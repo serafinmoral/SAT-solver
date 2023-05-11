@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import networkx as nx    
-from ClausesSimple import *
+from source_files.ClausesSimple import *
 from source_files.ProblemTrianFactor import *
 from time import *
 from source_files.utils import *
@@ -34,6 +34,81 @@ def openFileCNF(fileCNF):
             if infor.contradict:
                 print("reading contradiction")    
     return infor, nvar, nclaus
+
+def computeFromBN(tables,evid):
+    infor = simpleClauses()
+    for x in evid:
+        infor.insert({x}, test = False)
+    
+    for p in tables:
+        
+
+
+
+    return infor
+
+def openFileEvid(Archivo):
+    conjEvid=set()
+    reader=open(Archivo,"r")
+    lunitario=list(map(int,reader.readline().split()))
+    for x in range(1,len(lunitario),2):
+        conjEvid.add((lunitario[x]+1)*(-1 if lunitario[x+1]==0 else 1))
+    return conjEvid
+
+def openFileUAI(Archivo):
+    lista = list()
+    listadatos = list()
+    setevid = set()
+    archivo=""
+    contarClaus=0
+    reader=open(Archivo,"r") 
+    reader.readline()
+    reader.readline()
+    reader.readline()
+    numFactor = int(reader.readline())
+    for i in range(numFactor):
+        cadena = reader.readline()
+        nodoAdd = nodoTabla([int(i)+1 for i in cadena.split()[1:]])
+        lista.append(nodoAdd)
+    
+
+    if not 'or_chain' in Archivo and not 'Promedus' in Archivo:
+        for l in lista:
+            reader.readline()
+            lee=int(int(reader.readline())/2)
+            lvars=l.listavar
+            datos = np.array([])
+            for x in range(lee):
+                datos=np.append(datos,list(map(float,reader.readline().split())))
+            npdatos = datos.reshape((2,)*len(l.listavar))
+            l.tabla = npdatos
+    elif 'or_chain' in Archivo:
+        for l in lista:
+            datosb = reader.readline().split()
+
+            while not datosb:
+                datosb = reader.readline().split()
+               
+            del datosb[0]
+            datos = np.array(list(map(float,datosb)))
+
+            npdatos = datos.reshape((2,)*len(l.listavar))
+            l.tabla = npdatos
+    elif 'Promedus' in Archivo:
+        reader.readline()
+        for l in lista:
+            k = int(reader.readline())
+            datosb = reader.readline().split()
+            datos = np.array(list(map(float,datosb)))
+
+            npdatos = datos.reshape((2,)*len(l.listavar))
+            l.tabla = npdatos
+
+
+      
+    
+    setevid = openFileEvid(Archivo+".evid")
+    return (lista, setevid)
 
     
 def triangulap(pot):
@@ -141,6 +216,17 @@ def treeWidth(prob):
     (order,clusters,borr,posvar,child,parent) = triangulap(prob.pinitial)
     sizes = map(len,clusters)
     return(max(sizes))
+
+
+def UAI_experiment(fileUAI,fileResults="outputUAI.csv"):
+    reader=open(fileUAI,"r")
+    writer=open(fileResults,"w")
+    writer.write("Problem;Vars;TreeWidth;TRead;TSearch;TTotal\n")
+    for line in reader:
+        name=line.strip()   
+        t1 = time()
+        (tables,evid) = openFileCNF(name)
+        info = computeFromBN(tables,evid)
 
 
 def deleting_with_tables(fileCNF, Q=[5,10,15,20,25,30],Upgrade=[False], Prior=[True], Split=[True], Smessages=False,fileResults="salida.csv"):

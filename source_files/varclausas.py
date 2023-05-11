@@ -7,7 +7,7 @@ from statistics import variance
 from source_files.utils import *
 from time import *
 from source_files.varclausas import *
-from source_files.SimpleClausulas import *
+from source_files.ClausesSimple import *
 import signal
 
 def signal_handler(signum, frame):
@@ -30,7 +30,7 @@ def leeArchivoGlobal(Archivo):
     while cadena[0]=='c':
         cadena = reader.readline()
 
-    infor = simpleClausulas()
+    infor = simpleClauses()
     for cadena in reader:
         if (cadena[0]!='c'):
             cadena.strip()
@@ -40,9 +40,9 @@ def leeArchivoGlobal(Archivo):
             clausula= set(listaux)
             nc = set( map(lambda t: -t, clausula))
 
-            infor.listaclausOriginal.append(clausula.copy())
+            infor.listclausOriginal.append(clausula.copy())
             if not nc.intersection(clausula):
-                infor.insertar(clausula, test = False)
+                infor.insert(clausula, test = False)
             else:
                print("trivial ", clausula)
 
@@ -51,6 +51,40 @@ def leeArchivoGlobal(Archivo):
     
     return infor, nvar, nclaus
    
+def experimentDP(fi = "data_In_Out/list0", fo = "data_In_Out/output1"):
+        reader=open("data_In_Out/list0","r")
+        writer=open("data_In_Out/output1","w")
+        writer.write("Problem;Time\n")
+        ttotal = 0
+        signal.signal(signal.SIGALRM, signal_handler)
+
+        for linea in reader:
+            # i=i+1
+            linea = linea.rstrip()
+            if len(linea)>0:
+                cadena = ""
+                nombre=linea.strip()
+                print(nombre)     
+                (info, nvar, nclaus) = leeArchivoGlobal(nombre)
+                signal.alarm(600)
+
+                t1 = time()
+
+                dp = varclau()
+                dp.fromSimple(info)
+
+                try:
+                    dp.borra()
+                except Exception:
+                    print("Tiempo limite")
+                t2= time()
+                
+                                    
+                                    
+                writer.write(nombre + " ; " + str(t2-t1)+"\n")
+                
+        writer.close()
+        reader.close()
     
 
 
@@ -82,7 +116,7 @@ class varclau:
                   
         def fromSimple(self,infor):
             self.unit = infor.unit.copy()
-            for cl in infor.listaclaus:
+            for cl in infor.listclaus:
                 self.insertar(cl)
 
         def anula(self):
@@ -252,37 +286,5 @@ class varclau:
                         cln = set(map(lambda x:-x,cl))
                         if not cl.intersection(cln):
                             trabajo.insertar(cl)
+
     
-reader=open("data_In_Out/list0","r")
-writer=open("data_In_Out/output1","w")
-writer.write("Problem;Time\n")
-ttotal = 0
-signal.signal(signal.SIGALRM, signal_handler)
-
-for linea in reader:
-    # i=i+1
-    linea = linea.rstrip()
-    if len(linea)>0:
-        cadena = ""
-        nombre=linea.strip()
-        print(nombre)     
-        (info, nvar, nclaus) = leeArchivoGlobal(nombre)
-        signal.alarm(600)
-
-        t1 = time()
-
-        dp = varclau()
-        dp.fromSimple(info)
-
-        try:
-            dp.borra()
-        except Exception:
-            print("Tiempo limite")
-        t2= time()
-        
-                            
-                            
-        writer.write(nombre + " ; " + str(t2-t1)+"\n")
-        
-writer.close()
-reader.close()

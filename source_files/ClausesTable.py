@@ -8,6 +8,7 @@ from source_files.ClausesSimple import *
 from time import *
 import math
 import random
+from itertools import product
 
 class nodeTable:
     def __init__(self, list_):
@@ -21,6 +22,20 @@ class nodeTable:
         result = nodeTable(self.listvar.copy())
         result.table = self.table.copy()
         return result
+    
+    def getClauses(self):
+        lsets = []
+        res= []
+        for v in self.listvar:
+            lsets.append([-v,v])
+        for h in product(*lsets):
+            t = self.getvalue(h)
+            if not t:
+                clau = set(map(lambda x:-x, h))
+                res.append(clau)
+                print(clau)
+
+
 
 
     def decomposev(self,v):
@@ -34,6 +49,25 @@ class nodeTable:
             res.append(h)
         return res
 
+    def getvalue(self, val):
+        
+        values = filter(lambda x: abs(x) in  self.listvar, val)
+        vars = map(abs,val)
+
+        rest = set(self.listvar) - set(vars)
+        if rest:
+            return -1
+
+        values = [
+                (abs(var), 0 if var<0 else 1) for var in values
+            ]
+
+        var_index_to_del = []
+        slice_ = [slice(None)] * len(self.listavar)
+        for var, state in values:
+            var_index = self.listvar.index(var)
+            slice_[var_index] = state
+            var_index_to_del.append(var_index)
 
     def neg(self,inplace=False):
         newtable = np.logical_not(self.table)
@@ -449,3 +483,4 @@ class PotentialTable:
             tt = t0.sum(t1,inplace=True)
             res.listp = [tt]
             return res
+        

@@ -3,7 +3,6 @@ from source_files.ClausesTable import *
 from source_files.TablesVar import *
 import source_files.ProblemTrianFactor as pt
 
-
 def size(l):
     tot = set()
     if l:
