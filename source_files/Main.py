@@ -5,6 +5,13 @@ from source_files.ProblemTrianFactor import *
 from time import *
 from source_files.utils import *
 from source_files.TablesVar import *
+import signal
+from source_files.varclausas import *
+
+
+def signal_handler(signum, frame):
+    raise Exception("Tiempo limite")
+
 
 def openFileCNF(fileCNF):
     reader=open(fileCNF,"r") 
@@ -41,7 +48,9 @@ def computeFromBN(tables,evid):
         infor.insert({x}, test = False)
     
     for p in tables:
-        
+        lclau = p.getClauses()
+        for c in lclau:
+            infor.insert(c,test = False)
 
 
 
@@ -68,7 +77,7 @@ def openFileUAI(Archivo):
     numFactor = int(reader.readline())
     for i in range(numFactor):
         cadena = reader.readline()
-        nodoAdd = nodoTabla([int(i)+1 for i in cadena.split()[1:]])
+        nodoAdd = nodeTable([int(i)+1 for i in cadena.split()[1:]])
         lista.append(nodoAdd)
     
 
@@ -76,11 +85,11 @@ def openFileUAI(Archivo):
         for l in lista:
             reader.readline()
             lee=int(int(reader.readline())/2)
-            lvars=l.listavar
+            lvars=l.listvar
             datos = np.array([])
             for x in range(lee):
                 datos=np.append(datos,list(map(float,reader.readline().split())))
-            npdatos = datos.reshape((2,)*len(l.listavar))
+            npdatos = datos.reshape((2,)*len(l.listvar))
             l.tabla = npdatos
     elif 'or_chain' in Archivo:
         for l in lista:
@@ -218,15 +227,33 @@ def treeWidth(prob):
     return(max(sizes))
 
 
-def UAI_experiment(fileUAI,fileResults="outputUAI.csv"):
+def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
     reader=open(fileUAI,"r")
     writer=open(fileResults,"w")
+    # signal.signal(signal.SIGALRM, signal_handler)
+
     writer.write("Problem;Vars;TreeWidth;TRead;TSearch;TTotal\n")
     for line in reader:
         name=line.strip()   
         t1 = time()
-        (tables,evid) = openFileCNF(name)
+        (tables,evid) = openFileUAI(name)
         info = computeFromBN(tables,evid)
+        # signal.alarm(600)
+
+        t1 = time()
+
+        dp = varclau()
+        dp.fromSimple(info)
+        dp.borra()
+        try:
+            dp.borra()
+        except Exception:
+            print("Tiempo limite")
+        t2= time()
+        
+                            
+                                    
+        writer.write(name + " ; " + str(t2-t1)+"\n")
 
 
 def deleting_with_tables(fileCNF, Q=[5,10,15,20,25,30],Upgrade=[False], Prior=[True], Split=[True], Smessages=False,fileResults="salida.csv"):

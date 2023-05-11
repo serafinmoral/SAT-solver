@@ -33,7 +33,7 @@ class nodeTable:
             if not t:
                 clau = set(map(lambda x:-x, h))
                 res.append(clau)
-                print(clau)
+        return res
 
 
 
@@ -63,7 +63,7 @@ class nodeTable:
             ]
 
         var_index_to_del = []
-        slice_ = [slice(None)] * len(self.listavar)
+        slice_ = [slice(None)] * len(self.listvar)
         for var, state in values:
             var_index = self.listvar.index(var)
             slice_[var_index] = state

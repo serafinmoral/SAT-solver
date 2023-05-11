@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from operator import index
-import time
 from numpy import False_
 from source_files.TablesVar import *
 from source_files.ClausesSimple import *
 from source_files.ClausesTable import *
 from source_files.utils import *
 import random as ra
+from time import *
+
 
 
 class problemTrianFactor:

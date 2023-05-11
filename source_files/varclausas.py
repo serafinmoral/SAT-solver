@@ -56,7 +56,7 @@ def experimentDP(fi = "data_In_Out/list0", fo = "data_In_Out/output1"):
         writer=open("data_In_Out/output1","w")
         writer.write("Problem;Time\n")
         ttotal = 0
-        signal.signal(signal.SIGALRM, signal_handler)
+        # signal.signal(signal.SIGALRM, signal_handler)
 
         for linea in reader:
             # i=i+1
@@ -66,7 +66,7 @@ def experimentDP(fi = "data_In_Out/list0", fo = "data_In_Out/output1"):
                 nombre=linea.strip()
                 print(nombre)     
                 (info, nvar, nclaus) = leeArchivoGlobal(nombre)
-                signal.alarm(600)
+                # signal.alarm(600)
 
                 t1 = time()
 
