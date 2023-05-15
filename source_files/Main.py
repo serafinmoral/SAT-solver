@@ -269,9 +269,6 @@ def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
         prob.deletein()
         t2 = time()
 
-        print("termino")
-        sleep(3)
-
 
         # signal.alarm(600)
 
