@@ -72,7 +72,12 @@ def computeFromBN(tables,evid):
 def openFileEvid(Archivo):
     conjEvid=set()
     reader=open(Archivo,"r")
-    lunitario=list(map(int,reader.readline().split()))
+    total = reader.readlines()
+    t = ''
+    for x in total:
+        t = t+x
+    
+    lunitario=list(map(int,t.split()))
     for x in range(1,len(lunitario),2):
         conjEvid.add((lunitario[x]+1)*(-1 if lunitario[x+1]==0 else 1))
     return conjEvid
@@ -283,7 +288,7 @@ def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
         lclu = [p.listvar for p in tables] + [[abs(v)] for v in evid]
         (orden,clusters,borr,posvar,child,parent) = triangulap(lclu)
         tw = (max([len(x) for x in clusters]))
-        print(tw)
+        print(tw,ne)
 
         tprob = computefromT(ltables,evid) 
         prob = problemTrianFactor(info)
@@ -325,7 +330,7 @@ def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
 
 
 
-        writer.write(name + " ; " + str(nv) + " ; "+ " ; " + str(ne) + " ; " + str(tw) + ";"  + str(pz) + " ; " + str(nz) + " ; "+ str(t2-t1)+" ; " +str(t4-t3) +"\n")
+        writer.write(name + " ; " + str(nv) + "  ; " + str(ne) + " ; " + str(tw) + ";"  + str(pz) + " ; " + str(nz) + " ; "+ str(t2-t1)+" ; " +str(t4-t3) +"\n")
 
     print(x/k,x2/k-(x/k)**2)
     print(y/k,y2/k-(y/k)**2)
