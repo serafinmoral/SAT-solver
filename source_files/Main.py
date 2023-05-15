@@ -293,7 +293,7 @@ def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
         tprob = computefromT(ltables,evid) 
         prob = problemTrianFactor(info)
         prob.rela = tprob
-        signal.alarm(2000)
+        signal.alarm(3600)
 
         t1 = time()
 
@@ -310,7 +310,7 @@ def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
         dp.fromSimple(info)
         t3 = time()
 
-        signal.alarm(2000)
+        signal.alarm(3600)
 
         try:
             dp.borra()

@@ -271,7 +271,7 @@ def marginalize(list_, var, Split_In, M=30, Q=20, see_messMar=True):
                 if not r.trivial():
                         res.append(r)
             elif len(vars)<= Q:
-                if (see_messMar): print("\t\t\tglobal ")
+                # if (see_messMar): print("\t\t\tglobal ")
                 r = nodeTable([])
                 while si:
                     q = si.pop()
