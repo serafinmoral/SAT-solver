@@ -135,11 +135,15 @@ def openFileUAI(Archivo):
 
 def transformTables(li):
     res = []
+    nz = 0
+    nt = 0
     for p in li:
         q = nodeTable(p.listvar)
         q.table = p.table>0
         res.append(q)
-    return res
+        nt += 2**(len(p.listavar))
+        nz += 2**(len(p.listavar)) - q.table.sum()
+    return (res,nz/nt, nz)
     
 def triangulap(pot):
     order = []
@@ -271,7 +275,9 @@ def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
         name=line.strip()   
         t1 = time()
         (tables,evid) = openFileUAI(name)
-        ltables = transformTables(tables)
+        nv = len(tables)
+        ne = len(evid)
+        (ltables,pz,nz) = transformTables(tables)
         info = computeFromBN(ltables,evid)
         
         lclu = [p.listvar for p in tables] + [[abs(v)] for v in evid]
@@ -282,14 +288,14 @@ def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
         tprob = computefromT(ltables,evid) 
         prob = problemTrianFactor(info)
         prob.rela = tprob
-        signal.alarm(1000)
+        signal.alarm(2000)
 
         t1 = time()
 
         try:
             prob.deletein()
         except Exception:
-            print("Tme limit")
+            print("Time limit")
         t2 = time()
 
 
@@ -298,8 +304,8 @@ def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
         dp = varclau()
         dp.fromSimple(info)
         t3 = time()
-        
-        signal.alarm(1000)
+
+        signal.alarm(2000)
 
         try:
             dp.borra()
@@ -319,7 +325,7 @@ def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
 
 
 
-        writer.write(name + " ; " + str(tw) + ";" + str(t2-t1)+" ; " +str(t4-t3) +"\n")
+        writer.write(name + " ; " + str(nv) + " ; "+ " ; " + str(ne) + " ; " + str(tw) + ";"  + str(pz) + " ; " + str(nz) + " ; "+ str(t2-t1)+" ; " +str(t4-t3) +"\n")
 
     print(x/k,x2/k-(x/k)**2)
     print(y/k,y2/k-(y/k)**2)
