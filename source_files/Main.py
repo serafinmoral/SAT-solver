@@ -149,20 +149,24 @@ def triangulap(pot):
     posvar = dict()
     total = set()
     dvar = dict()
-    for p in pot.listp:
-        con = set(p.listvar)
+    t = pot if isinstance(pot,list) else pot.listp
+    for p in t:
+        if isinstance(p,nodeTable):
+            con = set(p.listavar)
+        else:
+            con = set(p)
         total.update(con)
         for v in con:
             if v in dvar:
                 dvar[v].append(con)
             else:
                 dvar[v] = [con]
-    n = len(total.union(pot.unit))
+    n = len(total) if isinstance(pot,list) else len(total.union(pot.unit))
     parent = [-1]*(n+1)
     for i in range(n+1):
         child.append(set())
     i= 0
-    units = pot.unit.copy()
+    units = set() if isinstance(pot,list) else  pot.unit.copy()
     while units:
         nnode = abs(units.pop())
         order.append(nnode)
@@ -248,29 +252,48 @@ def treeWidth(prob):
     return(max(sizes))
 
 
+
+
+
 def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
     reader=open(fileUAI,"r")
     writer=open(fileResults,"w")
-    # signal.signal(signal.SIGALRM, signal_handler)
-
+    signal.signal(signal.SIGALRM, signal_handler)
+    x = 0.0
+    x2 = 0.0
+    y = 0.0
+    y2 = 0.0
+    k=0
     writer.write("Problem;Vars;TreeWidth;TRead;TSearch;TTotal\n")
     for line in reader:
+        k+= 1
+        print(line)
         name=line.strip()   
         t1 = time()
         (tables,evid) = openFileUAI(name)
         ltables = transformTables(tables)
         info = computeFromBN(ltables,evid)
+        
+        lclu = [p.listvar for p in tables] + [[abs(v)] for v in evid]
+        (orden,clusters,borr,posvar,child,parent) = triangulap(lclu)
+        tw = (max([len(x) for x in clusters]))
+        print(tw)
 
         tprob = computefromT(ltables,evid) 
         prob = problemTrianFactor(info)
         prob.rela = tprob
+        signal.alarm(600)
+
         t1 = time()
 
-        prob.deletein()
+        try:
+            prob.deletein()
+        except Exception:
+            print("Tme limit")
         t2 = time()
 
 
-        # signal.alarm(600)
+        signal.alarm(600)
 
 
         dp = varclau()
@@ -280,17 +303,25 @@ def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
         try:
             dp.borra()
         except Exception:
-            print("Tiempo limite")
+            print("Time limit")
         t4= time()
 
+        x+= t2-t1
+        x2 += (t2-t1)**2
+        y += t4-t3
+        y2 += (t4-t3)**2
+
         print(t2-t1,t4-t3)
-        sleep(5)
+        sleep(1)
         
 
 
 
 
-        writer.write(name + " ; " + str(t2-t1)+"\n")
+        writer.write(name + " ; " + str(tw) + ";" + str(t2-t1)+" ; " +str(t4-t3) +"\n")
+
+    print(x/k,x2/k-(x/k)**2)
+    print(y/k,y2/k-(y/k)**2)
 
 
 def deleting_with_tables(fileCNF, Q=[5,10,15,20,25,30],Upgrade=[False], Prior=[True], Split=[True], Smessages=False,fileResults="salida.csv"):
