@@ -141,8 +141,8 @@ def transformTables(li):
         q = nodeTable(p.listvar)
         q.table = p.table>0
         res.append(q)
-        nt += 2**(len(p.listavar))
-        nz += 2**(len(p.listavar)) - q.table.sum()
+        nt += 2**(len(p.listvar))
+        nz += 2**(len(p.listvar)) - q.table.sum()
     return (res,nz/nt, nz)
     
 def triangulap(pot):
