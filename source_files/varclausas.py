@@ -254,12 +254,12 @@ class varclau:
 
 
         def borra(self, L=600):
-            trabajo = self.copia()
+            trabajo = self
             
             
             while trabajo.getvars() and not trabajo.contradict:
                 v = trabajo.siguiente()
-                print(v,len(trabajo.getvars()))
+                # print(v,len(trabajo.getvars()))
                 if v in trabajo.unit:
                     trabajo.unit.discard(v)
                     continue

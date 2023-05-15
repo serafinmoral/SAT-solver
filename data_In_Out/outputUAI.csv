@@ -1,2 +1,6 @@
 Problem;Vars;TreeWidth;TRead;TSearch;TTotal
-UAI/blockmap_10_01-0009.UAI ; 0.0
+UAI/or_chain_4.fg.uai ; 0.3923633098602295
+UAI/blockmap_10_01-0009.uai ; 4.544049501419067
+UAI/mastermind_03_08_04-0000.uai ; 2.70117449760437
+UAI/Promedus_38.uai ; 0.21997714042663574
+UAI/blockmap_20_01-0009.uai ; 375.2765600681305

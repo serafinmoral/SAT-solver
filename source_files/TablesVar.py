@@ -1,6 +1,18 @@
 # -*- coding: utf-8 -*-
 from statistics import variance
-from source_files.utils import *
+import source_files.utils as u
+
+
+def valord(p):
+    if not len(p.listvar)==1:
+        print("improper call")
+    else:
+        v = p.listvar[0]
+        if not p.table[0]:
+            return v
+        else:
+            return -v
+
 
 
 class varpot:
@@ -170,7 +182,7 @@ class varpot:
             return (exact,list_,listwithvar)
 
 
-        def marginalizeset(self,vars,M = 30, Q=20, ver = True, inplace = True, pre = False, order = []):
+        def marginalizeset(self,vars,M = 30, Q=20, ver = False, inplace = True, pre = False, order = []):
             if not pre:
                 vars.intersection_update(self.getvars())
             if inplace:
@@ -189,13 +201,14 @@ class varpot:
                         var = vars.pop()
                     else:
                         var = self.nextp(vars)
-                    sizea = size(self.table.get(var))
+                  
+                    sizea = u.size(self.table.get(var))
                     list_ = self.get(var)
                     if not pre:
                         pos = vars.copy()
                         dif = 0
                         while pos and dif <=2:
-                            met = calculamethod(list_,var)
+                            met = u.calculamethod(list_,var)
                             if met == 1:
                                 break
                             else:
@@ -204,7 +217,7 @@ class varpot:
                                 if pos:
                                     var = self.nextp(pos)
                                     list_ =self.get(var)
-                                    dif = size(self.table.get(var))- sizea
+                                    dif = u.size(self.table.get(var))- sizea
                         if met==2:
                             var = self.nextp(vars)
                             list_ = self.get(var)
@@ -290,8 +303,8 @@ class varpot:
             mav = max(pos,key = lambda x: len(self.table.get(x)))
             if len(self.table.get(miv)) == 1:
                 return (miv)
-            miv = min(pos,key = lambda x: size(self.table.get(x)))
-            mav = max(pos,key = lambda x: size(self.table.get(x)))
+            miv = min(pos,key = lambda x: u.size(self.table.get(x)))
+            mav = max(pos,key = lambda x: u.size(self.table.get(x)))
             return miv
 
 

@@ -34,8 +34,8 @@ class simpleClauses:
                         lstDel.append(cl)
                     if -v in cl:
                         lstDel.append(cl)
-                        cl.discard(-v)
-                        y.append(cl)
+                        cln = cl - {-v}
+                        y.append(cln)
         else:
             if x.intersection(self.unit):
                 return []
@@ -55,9 +55,10 @@ class simpleClauses:
                         elif len(claudif) == 1:
                             var = claudif.pop()
                             if -var in cl:
-                                cl.discard(-var)
+                                cln = cl -{-var}
+                            
                                 lstDel.append(cl)
-                                y.append(cl)
+                                y.append(cln)
                     if len(cl) <= len(x):
                         claudif = cl-x
                         if not claudif:

@@ -3,6 +3,9 @@ from source_files.ClausesTable import *
 from source_files.TablesVar import *
 import source_files.ProblemTrianFactor as pt
 
+
+
+
 def size(l):
     tot = set()
     if l:
@@ -11,17 +14,6 @@ def size(l):
         return len(tot)
     else:
         return 0    
-
-
-def valord(p):
-    if not len(p.listvar)==1:
-        print("improper call")
-    else:
-        v = p.listvar[0]
-        if not p.table[0]:
-            return v
-        else:
-            return -v
 
 
 def partev(list_,v):
@@ -216,7 +208,7 @@ def marginalize(list_, var, Split_In, M=30, Q=20, see_messMar=True):
         return (True,res,[nodeTable([var])])
     exact = True
     if deter:
-        if (see_messMar): print("\t\t\tdeterminista ")
+        # if (see_messMar): print("\t\t\tdeterminista ")
         vars.discard(var)
         listp = [keyp]
         if len(vars) <= Q:
@@ -265,7 +257,7 @@ def marginalize(list_, var, Split_In, M=30, Q=20, see_messMar=True):
                 sizes += 2**len(xx)
             list_ = []
             if 2**(len(vars)-1) <= sizes and len(vars) <=31:
-                if (see_messMar): print ("\t\t\tglobal total ")
+                # if (see_messMar): print ("\t\t\tglobal total ")
                 r = nodeTable([])
                 while si:
                     q = si.pop()

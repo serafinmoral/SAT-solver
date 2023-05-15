@@ -69,6 +69,9 @@ class nodeTable:
             slice_[var_index] = state
             var_index_to_del.append(var_index)
 
+        return self.table[tuple(slice_)]
+    
+
     def neg(self,inplace=False):
         newtable = np.logical_not(self.table)
         if inplace:

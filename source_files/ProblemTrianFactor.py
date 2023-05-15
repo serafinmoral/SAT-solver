@@ -130,7 +130,7 @@ class problemTrianFactor:
         if pre:
             (e,order,new,past)= self.rela.marginalizeset(set(self.order), Q=self.Q,pre = True, order = self.order.copy())
         else:
-            (e,order,new,past)= self.rela.marginalizeset(self.pinitial.getvars(), Q=self.Q,pre = False)
+            (e,order,new,past)= self.rela.marginalizeset(self.rela.getvars(), Q=self.Q,pre = False)
         self.contradict =  self.rela.contradict
         if not pre:
             self.order = self.order +  order

@@ -42,6 +42,14 @@ def openFileCNF(fileCNF):
                 print("reading contradiction")    
     return infor, nvar, nclaus
 
+def computefromT(tables,evid):
+    res = varpot()
+    for x in evid:
+        res.insertu(x)
+    for p in tables:
+        res.insert(p)
+    return res
+
 def computeFromBN(tables,evid):
     infor = simpleClauses()
     for x in evid:
@@ -50,7 +58,12 @@ def computeFromBN(tables,evid):
     for p in tables:
         lclau = p.getClauses()
         for c in lclau:
+           
             infor.insert(c,test = False)
+            h = set()
+            if h in infor.listclaus:
+                print("ssss")
+                sleep(40)
 
 
 
@@ -90,7 +103,7 @@ def openFileUAI(Archivo):
             for x in range(lee):
                 datos=np.append(datos,list(map(float,reader.readline().split())))
             npdatos = datos.reshape((2,)*len(l.listvar))
-            l.tabla = npdatos
+            l.table = npdatos
     elif 'or_chain' in Archivo:
         for l in lista:
             datosb = reader.readline().split()
@@ -101,8 +114,8 @@ def openFileUAI(Archivo):
             del datosb[0]
             datos = np.array(list(map(float,datosb)))
 
-            npdatos = datos.reshape((2,)*len(l.listavar))
-            l.tabla = npdatos
+            npdatos = datos.reshape((2,)*len(l.listvar))
+            l.table = npdatos
     elif 'Promedus' in Archivo:
         reader.readline()
         for l in lista:
@@ -110,8 +123,8 @@ def openFileUAI(Archivo):
             datosb = reader.readline().split()
             datos = np.array(list(map(float,datosb)))
 
-            npdatos = datos.reshape((2,)*len(l.listavar))
-            l.tabla = npdatos
+            npdatos = datos.reshape((2,)*len(l.listvar))
+            l.table = npdatos
 
 
       
@@ -119,6 +132,14 @@ def openFileUAI(Archivo):
     setevid = openFileEvid(Archivo+".evid")
     return (lista, setevid)
 
+
+def transformTables(li):
+    res = []
+    for p in li:
+        q = nodeTable(p.listvar)
+        q.table = p.table>0
+        res.append(q)
+    return res
     
 def triangulap(pot):
     order = []
@@ -237,22 +258,41 @@ def UAI_experiment(fileUAI,fileResults="data_In_Out/outputUAI.csv"):
         name=line.strip()   
         t1 = time()
         (tables,evid) = openFileUAI(name)
-        info = computeFromBN(tables,evid)
+        ltables = transformTables(tables)
+        info = computeFromBN(ltables,evid)
+
+        tprob = computefromT(ltables,evid) 
+        prob = problemTrianFactor(info)
+        prob.rela = tprob
+        t1 = time()
+
+        prob.deletein()
+        t2 = time()
+
+        print("termino")
+        sleep(3)
+
+
         # signal.alarm(600)
 
-        t1 = time()
 
         dp = varclau()
         dp.fromSimple(info)
-        dp.borra()
+        t3 = time()
+
         try:
             dp.borra()
         except Exception:
             print("Tiempo limite")
-        t2= time()
+        t4= time()
+
+        print(t2-t1,t4-t3)
+        sleep(5)
         
-                            
-                                    
+
+
+
+
         writer.write(name + " ; " + str(t2-t1)+"\n")
 
 
